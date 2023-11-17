@@ -18,7 +18,7 @@
             </server>
         </server-template>
 
-        <node name="node1">
+        <node name="node">
             <server-instance template="SimpleServer" index="1"/>
             <server-instance template="SimpleServer" index="2"/>
             <server-instance template="SimpleServer" index="3"/>

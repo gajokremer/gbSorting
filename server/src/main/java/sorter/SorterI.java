@@ -1,3 +1,4 @@
+package sorter;
 import com.zeroc.Ice.Current;
 
 import java.io.BufferedWriter;
@@ -5,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class SorterI implements Demo.Sorter {
+public class SorterI implements Services.Sorter {
 
     @Override
     public String sort(String s, Current current) {

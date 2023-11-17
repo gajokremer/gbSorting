@@ -8,7 +8,7 @@
             <parameter name="index"/>
             <server id="SimpleServer-${index}" exe="java" activation="on-demand">
                 <option>-jar</option>
-                <option>build/libs/server.jar</option>
+                <option>../server/build/libs/server.jar</option>
                 <adapter name="Hello" endpoints="tcp -h localhost" replica-group="ReplicatedHelloAdapter"/>
                 <property name="Identity" value="hello"/>
 
@@ -24,7 +24,7 @@
             <object identity="hello" type="::Demo::Hello"/>
         </replica-group>
 
-        <node name="node1">
+        <node name="node">
             <server-instance template="SimpleServer" index="1"/>
             <server-instance template="SimpleServer" index="2"/>
             <server-instance template="SimpleServer" index="3"/>
