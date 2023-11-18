@@ -1,4 +1,3 @@
-package reader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -13,7 +12,8 @@ public class ReaderI implements Services.Reader {
             // Use Java NIO to read the content of the file into a string
             String content = new String(Files.readAllBytes(Paths.get(path)));
 
-            return content;
+            // return content;
+            return "File content read successfully!";
 
         } catch (IOException e) {
             e.printStackTrace();

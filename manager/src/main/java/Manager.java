@@ -1,10 +1,15 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringJoiner;
+
+import Services.CallbackManagerPrx;
+import Services.CallbackReceiverPrx;
+import receiver.CallbackReceiverI;
 
 public class Manager {
 
@@ -24,7 +29,8 @@ public class Manager {
             // throw new Error("Invalid proxy");
             // }
 
-            Services.ReaderPrx reader = Services.ReaderPrx.checkedCast(communicator.propertyToProxy("Reader.Proxy"))
+            Services.ReaderPrx reader = Services.ReaderPrx
+                    .checkedCast(communicator.propertyToProxy("Reader.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
@@ -32,9 +38,29 @@ public class Manager {
                 throw new Error("Invalid proxy");
             }
 
+            Services.CallbackManagerPrx callbackManager = Services.CallbackManagerPrx
+                    .checkedCast(communicator.propertyToProxy("CallbackManager.Proxy"))
+                    .ice_twoway()
+                    .ice_secure(false);
+
+            if (callbackManager == null) {
+                throw new Error("Invalid proxy");
+            }
+
+            com.zeroc.Ice.ObjectAdapter callbackReceiverAdapter = communicator.createObjectAdapter("CallbackReceiver");
+            callbackReceiverAdapter.add(new CallbackReceiverI(),
+                    com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
+            callbackReceiverAdapter.activate();
+            CallbackReceiverPrx receiver = CallbackReceiverPrx.uncheckedCast(callbackReceiverAdapter
+                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
+
             System.out.println("\nMANAGER STARTED...\n");
 
-            inputFilePath(reader);
+            String ipAddress = getIpAddress();
+            long clientId = callbackManager.register(ipAddress, receiver);
+            System.out.println("-> Client Id: " + clientId + "\n");
+
+            inputFilePath(reader, callbackManager);
 
             // String path = "data/input.txt";
             // String result = reader.readFile(path);
@@ -45,7 +71,7 @@ public class Manager {
         }
     }
 
-    private static void inputFilePath(Services.ReaderPrx reader) {
+    private static void inputFilePath(Services.ReaderPrx reader, CallbackManagerPrx callbackManager) {
 
         while (true) {
 
@@ -59,7 +85,7 @@ public class Manager {
             }
 
             String result = reader.readFile(path);
-            System.out.println("\n" + result);
+            System.out.println("\n" + result + "\n");
         }
     }
 
@@ -89,5 +115,18 @@ public class Manager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getIpAddress() {
+        String ipAddress = "";
+
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            ipAddress = inetAddress.getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ipAddress;
     }
 }
