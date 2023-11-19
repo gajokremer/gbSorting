@@ -25,8 +25,8 @@ public class Manager {
             // throw new Error("Invalid proxy");
             // }
 
-            Services.ReaderPrx reader = Services.ReaderPrx
-                    .checkedCast(communicator.propertyToProxy("Reader.Proxy"))
+            Services.ReaderPrx distSorter = Services.ReaderPrx
+                    .checkedCast(communicator.propertyToProxy("DistSorter.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
@@ -40,7 +40,7 @@ public class Manager {
             // .ice_twoway()
             // .ice_secure(false);
 
-            if (reader == null || subject == null) {
+            if (distSorter == null || subject == null) {
                 throw new Error("Invalid proxy");
             }
 
@@ -56,7 +56,7 @@ public class Manager {
 
             subject.attach(observer);
 
-            run(reader, subject, observer);
+            run(distSorter, subject, observer);
 
             // String ipAddress = getIpAddress();
             // long clientId = callbackManager.register(ipAddress, receiver);
@@ -81,8 +81,14 @@ public class Manager {
                 String sharedPath = "/opt/share/";
                 path = sharedPath + path;
 
+                long startTime = System.currentTimeMillis();
+
                 String result = reader.readFile(path, subject);
                 System.out.println("\n" + result + "\n");
+
+                long endTime = System.currentTimeMillis();
+
+                System.out.println("\nTotal execution time: " + (endTime - startTime) + "ms\n");
             }
 
             if (input.equals("exit")) {

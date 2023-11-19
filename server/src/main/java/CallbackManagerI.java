@@ -36,9 +36,9 @@ public class CallbackManagerI implements Services.CallbackManager {
         // hostname);
         // return clientId;
 
-        long clientId = 0;
-        clientId = Server.registerWorker(receiverProxy, sorterProxy);
-        System.out.println("\nClient " + clientId + " registered with hostname: " + hostname);
-        return clientId;
+        long id = 0;
+        id = Server.registerWorker(receiverProxy, sorterProxy);
+        System.out.println("\nSorter " + id + " registered with hostname: " + hostname);
+        return id;
     }
 }

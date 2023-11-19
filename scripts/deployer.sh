@@ -3,3 +3,5 @@
 scp ../server/build/libs/server.jar swarch@xhgrid5:/home/swarch/gb
 scp ../manager/build/libs/manager.jar swarch@xhgrid6:/home/swarch/gb
 scp ../sorter/build/libs/sorter.jar swarch@xhgrid7:/home/swarch/gb
+scp ../sorter/build/libs/sorter.jar swarch@xhgrid8:/home/swarch/gb
+scp ../sorter/build/libs/sorter.jar swarch@xhgrid11:/home/swarch/gb

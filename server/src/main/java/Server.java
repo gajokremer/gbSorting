@@ -37,8 +37,8 @@ public class Server {
             // com.zeroc.Ice.Util.stringToIdentity("SimpleSorter"));
             // sorterAdapter.activate();
 
-            com.zeroc.Ice.ObjectAdapter readerAdapter = communicator.createObjectAdapter("Reader");
-            readerAdapter.add(new ReaderI(), com.zeroc.Ice.Util.stringToIdentity("SimpleReader"));
+            com.zeroc.Ice.ObjectAdapter readerAdapter = communicator.createObjectAdapter("DistSorter");
+            readerAdapter.add(new DistSorter(), com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
             readerAdapter.activate();
 
             com.zeroc.Ice.ObjectAdapter callbackManagerAdapter = communicator.createObjectAdapter("CallbackManager");

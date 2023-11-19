@@ -38,8 +38,8 @@ public class Sorter {
             System.out.println("\nSORTER STARTED...\n");
 
             String hostname = getHostname();
-            long clientId = callbackManager.register(hostname, receiver, sorter);
-            System.out.println("-> Client Id: " + clientId + "\n");
+            long sorterId = callbackManager.register(hostname, receiver, sorter);
+            System.out.println("-> Sorter Id: " + sorterId + "\n");
 
             while (true) {
                 // do nothing
