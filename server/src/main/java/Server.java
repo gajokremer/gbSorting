@@ -41,6 +41,10 @@ public class Server {
             managerAdapter.add(new CallbackManagerI(), com.zeroc.Ice.Util.stringToIdentity("CallbackManager"));
             managerAdapter.activate();
 
+            com.zeroc.Ice.ObjectAdapter subjectAdapter = communicator.createObjectAdapter("Subject");
+            subjectAdapter.add(new SubjectI(), com.zeroc.Ice.Util.stringToIdentity("Subject"));
+            subjectAdapter.activate();
+
             communicator.waitForShutdown();
             // communicator.destroy();
         }

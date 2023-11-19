@@ -1,4 +1,4 @@
-package sorter;
+
 import com.zeroc.Ice.Current;
 
 import java.io.BufferedWriter;

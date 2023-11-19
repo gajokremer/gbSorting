@@ -2,25 +2,41 @@ module Services {
 
     sequence<string> StringArr;
 
+    interface Reader;
+    interface CallbackManager;
+    interface Subject;
+    interface CallbackReceiver;
+    interface Observer;
+    interface Sorter;
+
     // Server
 
-    interface CallbackManager;
-    interface CallbackReceiver;
-
-    interface Sorter {
-        string sort(string s);
-    }
     interface Reader {
-        string readFile(string path);
+        string readFile(string path, long id, CallbackManager* callbackManager);
+        string readFile1(string path, Subject* subject);
     }
     interface CallbackManager {
         bool initiateCallback(long id, string s);
         long register(string hostname, CallbackReceiver* receiverProxy);
+    }
+    interface Subject {
+        void attach(Observer* observer);
+        void detach(Observer* observer);
+        void notifyAll(string s);
     }
 
     // Manager
 
     interface CallbackReceiver {
         void receiveCallback(string s);
+    }
+    interface Observer {
+        void update(string s);
+    }
+
+    // Sorter
+
+     interface Sorter {
+        string sort(string s);
     }
 }

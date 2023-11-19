@@ -9,6 +9,8 @@ import java.util.StringJoiner;
 
 import Services.CallbackManagerPrx;
 import Services.CallbackReceiverPrx;
+import Services.ReaderPrx;
+import Services.SubjectPrx;
 import receiver.CallbackReceiverI;
 
 public class Manager {
@@ -34,16 +36,17 @@ public class Manager {
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (reader == null) {
-                throw new Error("Invalid proxy");
-            }
+            Services.SubjectPrx subject = Services.SubjectPrx
+                    .checkedCast(communicator.propertyToProxy("Subject.Proxy"))
+                    .ice_twoway()
+                    .ice_secure(false);
 
             Services.CallbackManagerPrx callbackManager = Services.CallbackManagerPrx
                     .checkedCast(communicator.propertyToProxy("CallbackManager.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (callbackManager == null) {
+            if (reader == null || subject == null || callbackManager == null) {
                 throw new Error("Invalid proxy");
             }
 
@@ -54,24 +57,55 @@ public class Manager {
             CallbackReceiverPrx receiver = CallbackReceiverPrx.uncheckedCast(callbackReceiverAdapter
                     .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
 
-            System.out.println("\nMANAGER STARTED...\n");
+            com.zeroc.Ice.ObjectAdapter observerAdapter = communicator.createObjectAdapter("Observer");
+            observerAdapter.add(new ObserverI(), com.zeroc.Ice.Util.stringToIdentity("Observer"));
+            observerAdapter.activate();
+            Services.ObserverPrx observer = Services.ObserverPrx.uncheckedCast(observerAdapter
+                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("Observer")));
 
-            String ipAddress = getIpAddress();
-            long clientId = callbackManager.register(ipAddress, receiver);
-            System.out.println("-> Client Id: " + clientId + "\n");
+            System.out.println("\nMANAGER STARTED...");
 
-            inputFilePath(reader, callbackManager);
+            // rest of the code goes here
 
-            // String path = "data/input.txt";
-            // String result = reader.readFile(path);
-            // System.out.println("\n" + result);
+            subject.attach(observer);
+
+            run(reader, subject);
+
+            // String ipAddress = getIpAddress();
+            // long clientId = callbackManager.register(ipAddress, receiver);
+            // System.out.println("-> Client Id: " + clientId + "\n");
+
+            // inputFilePath(clientId, reader, callbackManager);
 
             // getFilePath(sorter);
-
         }
     }
 
-    private static void inputFilePath(Services.ReaderPrx reader, CallbackManagerPrx callbackManager) {
+    private static void run(ReaderPrx reader, SubjectPrx subject) {
+        while (true) {
+            // System.out.println("Enter file path: ");
+            System.out.print("\n-> ");
+            String input = sc.nextLine();
+
+            if (input.contains("::")) {
+                String[] parts = input.split("::");
+                String path = parts[1];
+
+                String sharedPath = "/opt/share/";
+                path = sharedPath + path;
+
+                String result = reader.readFile1(path, subject);
+                System.out.println("\n" + result + "\n");
+            }
+
+            if (input.equals("exit")) {
+                System.out.println("\nDisconnecting from server...\n");
+                break;
+            }
+        }
+    }
+
+    private static void inputFilePath(long clientId, Services.ReaderPrx reader, CallbackManagerPrx callbackManager) {
 
         while (true) {
 
@@ -79,12 +113,15 @@ public class Manager {
             System.out.print("-> ");
             String path = sc.nextLine();
 
+            String sharedPath = "/opt/share/";
+            path = sharedPath + path;
+
             if (path.equals("exit")) {
                 System.out.println("\nDisconnecting from server...\n");
                 break;
             }
 
-            String result = reader.readFile(path);
+            String result = reader.readFile(path, clientId, callbackManager);
             System.out.println("\n" + result + "\n");
         }
     }

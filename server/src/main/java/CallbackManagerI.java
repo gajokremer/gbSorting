@@ -15,8 +15,12 @@ public class CallbackManagerI implements Services.CallbackManager {
         CallbackReceiverPrx receiver = workers.get(id);
         boolean found = receiver != null;
         if (found) {
-            receiver.receiveCallback(s);
-            receiverFound = true;
+            try {
+                receiver.receiveCallback(s);
+                receiverFound = true;
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
         return receiverFound;
     }
