@@ -1,17 +1,10 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.StringJoiner;
 
-import Services.CallbackManagerPrx;
-import Services.CallbackReceiverPrx;
 import Services.ReaderPrx;
 import Services.SubjectPrx;
-import receiver.CallbackReceiverI;
+import observer.ObserverI;
 
 public class Manager {
 
@@ -41,21 +34,23 @@ public class Manager {
                     .ice_twoway()
                     .ice_secure(false);
 
-            Services.CallbackManagerPrx callbackManager = Services.CallbackManagerPrx
-                    .checkedCast(communicator.propertyToProxy("CallbackManager.Proxy"))
-                    .ice_twoway()
-                    .ice_secure(false);
+            // Services.CallbackManagerPrx callbackManager = Services.CallbackManagerPrx
+            // .checkedCast(communicator.propertyToProxy("CallbackManager.Proxy"))
+            // .ice_twoway()
+            // .ice_secure(false);
 
-            if (reader == null || subject == null || callbackManager == null) {
+            if (reader == null || subject == null) {
                 throw new Error("Invalid proxy");
             }
 
-            com.zeroc.Ice.ObjectAdapter callbackReceiverAdapter = communicator.createObjectAdapter("CallbackReceiver");
-            callbackReceiverAdapter.add(new CallbackReceiverI(),
-                    com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
-            callbackReceiverAdapter.activate();
-            CallbackReceiverPrx receiver = CallbackReceiverPrx.uncheckedCast(callbackReceiverAdapter
-                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
+            // com.zeroc.Ice.ObjectAdapter callbackReceiverAdapter =
+            // communicator.createObjectAdapter("CallbackReceiver");
+            // callbackReceiverAdapter.add(new ManagerReceiver(),
+            // com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
+            // callbackReceiverAdapter.activate();
+            // CallbackReceiverPrx receiver =
+            // CallbackReceiverPrx.uncheckedCast(callbackReceiverAdapter
+            // .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
 
             com.zeroc.Ice.ObjectAdapter observerAdapter = communicator.createObjectAdapter("Observer");
             observerAdapter.add(new ObserverI(), com.zeroc.Ice.Util.stringToIdentity("Observer"));
@@ -94,7 +89,7 @@ public class Manager {
                 String sharedPath = "/opt/share/";
                 path = sharedPath + path;
 
-                String result = reader.readFile1(path, subject);
+                String result = reader.readFile(path, subject);
                 System.out.println("\n" + result + "\n");
             }
 
@@ -103,67 +98,5 @@ public class Manager {
                 break;
             }
         }
-    }
-
-    private static void inputFilePath(long clientId, Services.ReaderPrx reader, CallbackManagerPrx callbackManager) {
-
-        while (true) {
-
-            System.out.println("Enter file path: ");
-            System.out.print("-> ");
-            String path = sc.nextLine();
-
-            String sharedPath = "/opt/share/";
-            path = sharedPath + path;
-
-            if (path.equals("exit")) {
-                System.out.println("\nDisconnecting from server...\n");
-                break;
-            }
-
-            String result = reader.readFile(path, clientId, callbackManager);
-            System.out.println("\n" + result + "\n");
-        }
-    }
-
-    private static void getFilePath(Services.SorterPrx processor) {
-        // Specify the path to your .txt file
-        String filePath = "data/input.txt";
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            StringJoiner contentJoiner = new StringJoiner("\n");
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                contentJoiner.add(line);
-            }
-
-            // Combine all lines into a single string
-            String content = contentJoiner.toString();
-
-            // Send the entire content as a single request
-            String response = processor.sort(content);
-
-            // System.out.println("Input: " + content);
-            // System.out.println("Response: " + response);
-
-            System.out.println("\n" + response);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static String getIpAddress() {
-        String ipAddress = "";
-
-        try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            ipAddress = inetAddress.getHostAddress();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return ipAddress;
     }
 }

@@ -12,8 +12,8 @@ module Services {
     // Server
 
     interface Reader {
-        string readFile(string path, long id, CallbackManager* callbackManager);
-        string readFile1(string path, Subject* subject);
+        // string readFile(string path, long id, CallbackManager* callbackManager);
+        string readFile(string path, Subject* subject);
     }
     interface CallbackManager {
         bool initiateCallback(long id, string s);

@@ -26,11 +26,11 @@ public class CallbackManagerI implements Services.CallbackManager {
     }
 
     @Override
-    public long register(String ipAddress, CallbackReceiverPrx receiverProxy, Current current) {
+    public long register(String hostname, CallbackReceiverPrx receiverProxy, Current current) {
         long clientId = 0;
-        clientId = Server.generateUniqueId(ipAddress);
+        clientId = Server.generateUniqueId(hostname);
         workers.put(clientId, receiverProxy);
-        System.out.println("Client " + clientId + " registered with IP address: " + ipAddress);
+        System.out.println("\nClient " + clientId + " registered with hostname: " + hostname);
         return clientId;
     }
 }

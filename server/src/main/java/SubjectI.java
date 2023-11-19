@@ -12,7 +12,7 @@ public class SubjectI implements Services.Subject {
     @Override
     public void attach(ObserverPrx observer, Current current) {
         observers.add(observer);
-        System.out.println("-> New observer attached");
+        System.out.println("\n-> New observer attached");
     }
 
     @Override

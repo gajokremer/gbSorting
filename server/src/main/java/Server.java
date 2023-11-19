@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ public class Server {
 
         try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, "server.cfg", extraArgs)) {
 
-            System.out.println("\nSERVER STARTED...\n");
+            System.out.println("\nSERVER STARTED...");
 
             // com.zeroc.Ice.ObjectAdapter sorterAdapter =
             // communicator.createObjectAdapter("Sorter");
@@ -37,9 +36,9 @@ public class Server {
             readerAdapter.add(new ReaderI(), com.zeroc.Ice.Util.stringToIdentity("SimpleReader"));
             readerAdapter.activate();
 
-            com.zeroc.Ice.ObjectAdapter managerAdapter = communicator.createObjectAdapter("CallbackManager");
-            managerAdapter.add(new CallbackManagerI(), com.zeroc.Ice.Util.stringToIdentity("CallbackManager"));
-            managerAdapter.activate();
+            com.zeroc.Ice.ObjectAdapter callbackManagerAdapter = communicator.createObjectAdapter("CallbackManager");
+            callbackManagerAdapter.add(new CallbackManagerI(), com.zeroc.Ice.Util.stringToIdentity("CallbackManager"));
+            callbackManagerAdapter.activate();
 
             com.zeroc.Ice.ObjectAdapter subjectAdapter = communicator.createObjectAdapter("Subject");
             subjectAdapter.add(new SubjectI(), com.zeroc.Ice.Util.stringToIdentity("Subject"));

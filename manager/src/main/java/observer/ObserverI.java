@@ -1,3 +1,4 @@
+package observer;
 import com.zeroc.Ice.Current;
 
 public class ObserverI implements Services.Observer {
