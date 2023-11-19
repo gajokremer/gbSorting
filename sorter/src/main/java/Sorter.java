@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Services.CallbackReceiverPrx;
+import Services.SorterPrx;
 import receiver.CallbackReceiver;
 
 public class Sorter {
@@ -28,10 +29,16 @@ public class Sorter {
             CallbackReceiverPrx receiver = CallbackReceiverPrx.uncheckedCast(callbackReceiverAdapter
                     .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
 
+            com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
+            sorterAdapter.add(new SorterI(), com.zeroc.Ice.Util.stringToIdentity("Sorter"));
+            sorterAdapter.activate();
+            SorterPrx sorter = SorterPrx.uncheckedCast(sorterAdapter
+                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("Sorter")));
+
             System.out.println("\nSORTER STARTED...\n");
 
             String hostname = getHostname();
-            long clientId = callbackManager.register(hostname, receiver);
+            long clientId = callbackManager.register(hostname, receiver, sorter);
             System.out.println("-> Client Id: " + clientId + "\n");
 
             while (true) {

@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import Services.ObserverPrx;
 import Services.ReaderPrx;
 import Services.SubjectPrx;
 import observer.ObserverI;
@@ -43,15 +44,6 @@ public class Manager {
                 throw new Error("Invalid proxy");
             }
 
-            // com.zeroc.Ice.ObjectAdapter callbackReceiverAdapter =
-            // communicator.createObjectAdapter("CallbackReceiver");
-            // callbackReceiverAdapter.add(new ManagerReceiver(),
-            // com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
-            // callbackReceiverAdapter.activate();
-            // CallbackReceiverPrx receiver =
-            // CallbackReceiverPrx.uncheckedCast(callbackReceiverAdapter
-            // .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
-
             com.zeroc.Ice.ObjectAdapter observerAdapter = communicator.createObjectAdapter("Observer");
             observerAdapter.add(new ObserverI(), com.zeroc.Ice.Util.stringToIdentity("Observer"));
             observerAdapter.activate();
@@ -64,7 +56,7 @@ public class Manager {
 
             subject.attach(observer);
 
-            run(reader, subject);
+            run(reader, subject, observer);
 
             // String ipAddress = getIpAddress();
             // long clientId = callbackManager.register(ipAddress, receiver);
@@ -76,7 +68,7 @@ public class Manager {
         }
     }
 
-    private static void run(ReaderPrx reader, SubjectPrx subject) {
+    private static void run(ReaderPrx reader, SubjectPrx subject, ObserverPrx observer) {
         while (true) {
             // System.out.println("Enter file path: ");
             System.out.print("\n-> ");
@@ -94,6 +86,7 @@ public class Manager {
             }
 
             if (input.equals("exit")) {
+                subject.detach(observer);
                 System.out.println("\nDisconnecting from server...\n");
                 break;
             }

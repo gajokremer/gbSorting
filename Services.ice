@@ -17,7 +17,7 @@ module Services {
     }
     interface CallbackManager {
         bool initiateCallback(long id, string s);
-        long register(string hostname, CallbackReceiver* receiverProxy);
+        long register(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
     }
     interface Subject {
         void attach(Observer* observer);

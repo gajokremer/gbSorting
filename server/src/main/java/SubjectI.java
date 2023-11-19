@@ -18,6 +18,7 @@ public class SubjectI implements Services.Subject {
     @Override
     public void detach(ObserverPrx observer, Current current) {
         observers.remove(observer);
+        System.out.println("\n-> Observer detached");
     }
 
     @Override

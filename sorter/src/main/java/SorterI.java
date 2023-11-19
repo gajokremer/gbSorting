@@ -10,6 +10,9 @@ public class SorterI implements Services.Sorter {
 
     @Override
     public String sort(String s, Current current) {
+
+        System.out.println("Sorting file content...");
+
         String[] lines = s.split("\n");
 
         // Sort the array of lines alphabetically
@@ -19,9 +22,10 @@ public class SorterI implements Services.Sorter {
         String result = String.join("\n", lines);
 
         // Write the sorted result to the output.txt file
-        writeToFile(result);
+        // writeToFile(result);
 
-        return "Result processed successfully!";
+        // return "Result processed successfully!";
+        return result;
     }
 
     private void writeToFile(String content) {

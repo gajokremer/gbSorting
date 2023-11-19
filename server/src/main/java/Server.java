@@ -1,10 +1,15 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import Services.CallbackReceiverPrx;
+import Services.SorterPrx;
+
 import java.util.HashMap;
 
 public class Server {
-    private static Map<Long, String> workers = new HashMap<>();
+    private static Map<Long, CallbackReceiverPrx> workerReceivers = new HashMap<>();
+    private static Map<Long, SorterPrx> workerSorters = new HashMap<>();
     private static long clientCount = 0;
 
     public static void main(String[] args) {
@@ -49,10 +54,26 @@ public class Server {
         }
     }
 
-    public static synchronized long generateUniqueId(String ipAddress) {
+    // public static synchronized long generateUniqueId(String ipAddress) {
+    // clientCount++;
+    // long id = clientCount;
+    // workers.put(id, ipAddress);
+    // return id;
+    // }
+
+    static synchronized long registerWorker(CallbackReceiverPrx receiverProxy, SorterPrx sorterProxy) {
         clientCount++;
         long id = clientCount;
-        workers.put(id, ipAddress);
+        workerReceivers.put(id, receiverProxy);
+        workerSorters.put(id, sorterProxy);
         return id;
+    }
+
+    public static Map<Long, CallbackReceiverPrx> getWorkerReceivers() {
+        return workerReceivers;
+    }
+
+    public static Map<Long, SorterPrx> getWorkerSorters() {
+        return workerSorters;
     }
 }
