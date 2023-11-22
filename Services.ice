@@ -2,7 +2,7 @@ module Services {
 
     sequence<string> StringArr;
 
-    interface Reader;
+    interface DistSorter;
     interface CallbackManager;
     interface Subject;
     interface CallbackReceiver;
@@ -11,13 +11,16 @@ module Services {
 
     // Server
 
-    interface Reader {
-        // string readFile(string path, long id, CallbackManager* callbackManager);
-        string readFile(string path, Subject* subject);
+    interface DistSorter {
+        // string distSort(string path, Subject* subject);
+        string distSort(string path);
+        string sort(string s);
     }
     interface CallbackManager {
         bool initiateCallback(long id, string s);
-        long register(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
+        long registerClient(string hostname, CallbackReceiver* receiverProxy);
+        void removeClient(long id);
+        long registerWorker(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
     }
     interface Subject {
         void attach(Observer* observer);
@@ -36,7 +39,7 @@ module Services {
 
     // Sorter
 
-     interface Sorter {
+    interface Sorter {
         string sort(string s);
     }
 }

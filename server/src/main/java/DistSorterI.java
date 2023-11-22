@@ -7,9 +7,8 @@ import com.zeroc.Ice.Current;
 
 import Services.SorterPrx;
 // import Services.CallbackManagerPrx;
-import Services.SubjectPrx;
 
-public class DistSorter implements Services.Reader {
+public class DistSorterI implements Services.DistSorter {
 
     // @Override
     // public String readFile(String path, long id, CallbackManagerPrx
@@ -31,19 +30,11 @@ public class DistSorter implements Services.Reader {
     // }
 
     @Override
-    public String readFile(String path, SubjectPrx subject, Current current) {
-        System.out.println("\nFile read request received from Manager -> " + path);
+    // public String distSort(String path, SubjectPrx subject, Current current) {
+    public String distSort(String path, Current current) {
+        System.out.println("\nFile read request received from Client -> " + path);
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
-
-            // for (SorterPrx sorter : Server.getWorkerSorters().values()) {
-            // String result = sorter.sort(content);
-            // subject._notifyAll(result);
-            // }
-
-            // subject._notifyAll(content);
-
-            // System.out.println("Content: " + content);
 
             String[] dividedParts = divide(content, Server.getWorkerSorters().size());
             System.out.println();
@@ -52,26 +43,34 @@ public class DistSorter implements Services.Reader {
             }
 
             // send each part to a sorter
-            int i = 0;
-            String result = "";
-            for (SorterPrx sorter : Server.getWorkerSorters().values()) {
-                result += "\n" + sorter.sort(dividedParts[i]);
-                // subject._notifyAll(result);
-                i++;
+            if (Server.getWorkerSorters().size() > 0) {
+                int i = 0;
+                String result = "";
+                for (SorterPrx sorter : Server.getWorkerSorters().values()) {
+                    result += "\n" + sorter.sort(dividedParts[i]);
+                    // subject._notifyAll(result);
+                    i++;
+                }
             }
 
+            if (Server.getWorkerCount() == 0) {
+                return sort(content, current);
+            }
             // result = sort(result, current);
-            subject._notifyAll(result);
+            // subject._notifyAll(result);
 
             return "File content read successfully!";
+
+            // return result;
 
         } catch (IOException e) {
             return "Error reading or sorting the file: " + e.getMessage();
         }
     }
 
+    @Override
     public String sort(String s, Current current) {
-        System.out.println("Sorting file content...");
+        System.out.println("\nSorting file content...");
 
         String[] lines = s.split("\n");
 

@@ -6,6 +6,6 @@
  */
 
 rootProject.name = 'gbSorting'
-include 'manager'
+include 'client'
 include 'server'
 include 'sorter'
