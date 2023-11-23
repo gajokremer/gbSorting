@@ -7,15 +7,16 @@ import java.util.Arrays;
 
 import com.zeroc.Ice.Current;
 
+import connections.ResponseManagerI;
 import connections.ConnectionManagerI;
 
 public class DistSorterI implements Services.DistSorter {
 
-    private CallbackManagerI callbackManager;
+    private ResponseManagerI responseManager;
     private ConnectionManagerI connectionManager;
 
-    public DistSorterI(CallbackManagerI callbackManager) {
-        this.callbackManager = callbackManager;
+    public DistSorterI(ResponseManagerI callbackManager) {
+        this.responseManager = callbackManager;
         this.connectionManager = callbackManager.getConnectionManager();
     }
 

@@ -5,19 +5,19 @@ import com.zeroc.Ice.Current;
 import java.util.HashMap;
 import java.util.Map;
 
-import Services.CallbackReceiverPrx;
+import Services.ResponseReceiverPrx;
 import Services.SorterPrx;
 
 public class ConnectionManagerI implements Services.ConnectionManager {
 
-    private Map<Long, CallbackReceiverPrx> sorterReceivers = new HashMap<>();
+    private Map<Long, ResponseReceiverPrx> sorterReceivers = new HashMap<>();
     private Map<Long, SorterPrx> sorters = new HashMap<>();
-    private Map<Long, CallbackReceiverPrx> clientReceivers = new HashMap<>();
+    private Map<Long, ResponseReceiverPrx> clientReceivers = new HashMap<>();
 
     private long clientCount = 0;
     private long sorterCount = 0;
 
-    public Map<Long, CallbackReceiverPrx> getSorterReceivers() {
+    public Map<Long, ResponseReceiverPrx> getSorterReceivers() {
         return sorterReceivers;
     }
 
@@ -25,7 +25,7 @@ public class ConnectionManagerI implements Services.ConnectionManager {
         return sorters;
     }
 
-    public Map<Long, CallbackReceiverPrx> getClientReceivers() {
+    public Map<Long, ResponseReceiverPrx> getClientReceivers() {
         return clientReceivers;
     }
 
@@ -38,7 +38,7 @@ public class ConnectionManagerI implements Services.ConnectionManager {
     }
 
     @Override
-    public long registerClient(String hostname, CallbackReceiverPrx receiverProxy, Current current) {
+    public long registerClient(String hostname, ResponseReceiverPrx receiverProxy, Current current) {
         long clientId = 0;
         clientId = registerClient(receiverProxy);
         System.out.println("\n-> Registering Client with ID '" + clientId + "' from host: " + hostname);
@@ -53,7 +53,7 @@ public class ConnectionManagerI implements Services.ConnectionManager {
     }
 
     @Override
-    public long registerSorter(String hostname, CallbackReceiverPrx receiverProxy, SorterPrx sorterProxy,
+    public long registerSorter(String hostname, ResponseReceiverPrx receiverProxy, SorterPrx sorterProxy,
             Current current) {
         long workerId = 0;
         workerId = registerWorker(receiverProxy, sorterProxy);
@@ -69,7 +69,7 @@ public class ConnectionManagerI implements Services.ConnectionManager {
         System.out.println("\n-> Removing Sorter with ID '" + id + "'");
     }
 
-    public synchronized long registerWorker(CallbackReceiverPrx receiverProxy, SorterPrx sorterProxy) {
+    public synchronized long registerWorker(ResponseReceiverPrx receiverProxy, SorterPrx sorterProxy) {
         sorterCount++;
         long id = sorterCount;
         sorterReceivers.put(id, receiverProxy);
@@ -77,7 +77,7 @@ public class ConnectionManagerI implements Services.ConnectionManager {
         return id;
     }
 
-    public synchronized long registerClient(CallbackReceiverPrx receiver) {
+    public synchronized long registerClient(ResponseReceiverPrx receiver) {
         clientCount++;
         long id = clientCount;
         clientReceivers.put(id, receiver);

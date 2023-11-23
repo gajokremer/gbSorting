@@ -3,30 +3,26 @@ module Services {
     sequence<string> StringArr;
 
     interface DistSorter;
-    interface CallbackManager;
+    interface ResponseManager;
     interface Subject;
-    interface CallbackReceiver;
+    interface ResponseReceiver;
     interface Observer;
     interface Sorter;
 
     // Server
 
     interface DistSorter {
-        // string distSort(string path, Subject* subject);
         string distSort(string path);
         string sort(string s);
     }
-    interface CallbackManager {
-        bool initiateCallback(long id, string s);
-        //long registerClient(string hostname, CallbackReceiver* receiverProxy);
-        //void removeClient(long id);
-        //long registerWorker(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
-        //void removeWorker(long id);
+    interface ResponseManager {
+        //bool initiateCallback(long id, string s);
+        bool respondToClient(long id, string s);
     }
     interface ConnectionManager {
-        long registerClient(string hostname, CallbackReceiver* receiverProxy);
+        long registerClient(string hostname, ResponseReceiver* receiverProxy);
         void removeClient(long id);
-        long registerSorter(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
+        long registerSorter(string hostname, ResponseReceiver* receiverProxy, Sorter* sorterProxy);
         void removeSorter(long id);
     }
     interface Subject {
@@ -37,8 +33,9 @@ module Services {
 
     // Client
 
-    interface CallbackReceiver {
-        void receiveCallback(string s);
+    interface ResponseReceiver {
+        //void receiveCallback(string s);
+        void receiveResponse(string s);
     }
     interface Observer {
         void update(string s);

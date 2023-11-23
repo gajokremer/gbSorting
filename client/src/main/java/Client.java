@@ -3,12 +3,12 @@ import java.util.List;
 import java.util.Scanner;
 
 import Services.ObserverPrx;
-import Services.CallbackManagerPrx;
-import Services.CallbackReceiverPrx;
+import Services.ResponseManagerPrx;
+import Services.ResponseReceiverPrx;
 import Services.ConnectionManagerPrx;
 import Services.DistSorterPrx;
 import Services.SubjectPrx;
-import communicator.CallbackReceiver;
+import communicator.ResponseReceiverC;
 
 public class Client {
 
@@ -38,26 +38,26 @@ public class Client {
                     .ice_twoway()
                     .ice_secure(false);
 
-            Services.CallbackManagerPrx callbackManager = Services.CallbackManagerPrx
-                    .checkedCast(communicator.propertyToProxy("CallbackManager.Proxy"))
+            Services.ResponseManagerPrx responseManager = Services.ResponseManagerPrx
+                    .checkedCast(communicator.propertyToProxy("ResponseManager.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (distSorter == null || connectionManager == null || callbackManager == null) {
+            if (distSorter == null || connectionManager == null || responseManager == null) {
                 throw new Error("Invalid proxy");
             }
 
-            com.zeroc.Ice.ObjectAdapter receiverAdapter = communicator.createObjectAdapter("CallbackReceiver");
-            receiverAdapter.add(new CallbackReceiver(), com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
-            receiverAdapter.activate();
-            Services.CallbackReceiverPrx receiver = Services.CallbackReceiverPrx.uncheckedCast(receiverAdapter
-                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
+            com.zeroc.Ice.ObjectAdapter responseReceiverAdapter = communicator.createObjectAdapter("ResponseReceiver");
+            responseReceiverAdapter.add(new ResponseReceiverC(), com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver"));
+            responseReceiverAdapter.activate();
+            Services.ResponseReceiverPrx receiver = Services.ResponseReceiverPrx.uncheckedCast(responseReceiverAdapter
+                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver")));
 
             System.out.println("\nCLIENT STARTED...");
 
             // rest of the code goes here
 
-            askForInput(distSorter, connectionManager, callbackManager, receiver);
+            askForInput(distSorter, connectionManager, responseManager, receiver);
 
             // subject.attach(observer);
 
@@ -65,7 +65,8 @@ public class Client {
         }
     }
 
-    private static void askForInput(DistSorterPrx sorter, ConnectionManagerPrx connectionManager, CallbackManagerPrx callbackManager, CallbackReceiverPrx receiver) {
+    private static void askForInput(DistSorterPrx sorter, ConnectionManagerPrx connectionManager,
+            ResponseManagerPrx responseManager, ResponseReceiverPrx receiver) {
 
         String hostname = getHostname();
         // long clientId = manager.registerClient(hostname, receiver);

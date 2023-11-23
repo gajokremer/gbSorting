@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import Services.CallbackReceiverPrx;
+import Services.ResponseReceiverPrx;
 import Services.SorterPrx;
-import receiver.CallbackReceiver;
+import receiver.ResponseReceiverS;
 
 public class Sorter {
     public static void main(String[] args) {
@@ -14,8 +14,8 @@ public class Sorter {
 
         try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, "sorter.cfg", extraArgs)) {
 
-            Services.CallbackManagerPrx callbackManager = Services.CallbackManagerPrx
-                    .checkedCast(communicator.propertyToProxy("CallbackManager.Proxy"))
+            Services.ResponseManagerPrx reponseManager = Services.ResponseManagerPrx
+                    .checkedCast(communicator.propertyToProxy("ResponseManager.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
@@ -24,16 +24,16 @@ public class Sorter {
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (callbackManager == null || connectionManager == null) {
+            if (reponseManager == null || connectionManager == null) {
                 throw new Error("Invalid proxy");
             }
 
-            com.zeroc.Ice.ObjectAdapter callbackReceiverAdapter = communicator.createObjectAdapter("CallbackReceiver");
-            callbackReceiverAdapter.add(new CallbackReceiver(),
-                    com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
-            callbackReceiverAdapter.activate();
-            CallbackReceiverPrx receiver = CallbackReceiverPrx.uncheckedCast(callbackReceiverAdapter
-                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
+            com.zeroc.Ice.ObjectAdapter responseReceiverAdapter = communicator.createObjectAdapter("ResponseReceiver");
+            responseReceiverAdapter.add(new ResponseReceiverS(),
+                    com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver"));
+            responseReceiverAdapter.activate();
+            ResponseReceiverPrx receiver = ResponseReceiverPrx.uncheckedCast(responseReceiverAdapter
+                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver")));
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
             sorterAdapter.add(new SorterI(), com.zeroc.Ice.Util.stringToIdentity("Sorter"));
