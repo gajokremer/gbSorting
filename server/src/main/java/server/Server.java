@@ -16,11 +16,6 @@ import connections.ConnectionManagerI;
 import java.util.HashMap;
 
 public class Server {
-    private static Map<Long, CallbackReceiverPrx> sorterReceivers = new HashMap<>();
-    private static Map<Long, SorterPrx> sorters = new HashMap<>();
-    private static Map<Long, CallbackReceiverPrx> clientReceivers = new HashMap<>();
-    private static long clientCount = 0;
-    private static long workerCount = 0;
 
     public static void main(String[] args) {
         // try(com.zeroc.Ice.Communicator communicator =
@@ -39,22 +34,26 @@ public class Server {
 
         try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, "server.cfg", extraArgs)) {
 
-            System.out.println("\nSERVER STARTED...");
+            ConnectionManagerI connectionManager = new ConnectionManagerI();
+            CallbackManagerI callbackManager = new CallbackManagerI(connectionManager);
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("DistSorter");
-            sorterAdapter.add(new DistSorterI(), com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
+            sorterAdapter.add(new DistSorterI(callbackManager),
+                    com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
             sorterAdapter.activate();
 
             com.zeroc.Ice.ObjectAdapter callbackManagerAdapter = communicator.createObjectAdapter("CallbackManager");
-            callbackManagerAdapter.add(new CallbackManagerI(),
+            callbackManagerAdapter.add(callbackManager,
                     com.zeroc.Ice.Util.stringToIdentity("CallbackManager"));
             callbackManagerAdapter.activate();
 
             com.zeroc.Ice.ObjectAdapter connectionManagerAdapter = communicator
                     .createObjectAdapter("ConnectionManager");
-            connectionManagerAdapter.add(new ConnectionManagerI(),
+            connectionManagerAdapter.add(connectionManager,
                     com.zeroc.Ice.Util.stringToIdentity("ConnectionManager"));
             connectionManagerAdapter.activate();
+
+            System.out.println("\nSERVER STARTED...");
 
             communicator.waitForShutdown();
             // communicator.destroy();
@@ -68,46 +67,4 @@ public class Server {
     // return id;
     // }
 
-    public static synchronized long registerWorker(CallbackReceiverPrx receiverProxy, SorterPrx sorterProxy) {
-        workerCount++;
-        long id = workerCount;
-        sorterReceivers.put(id, receiverProxy);
-        sorters.put(id, sorterProxy);
-        return id;
-    }
-
-    public static synchronized long registerClient(CallbackReceiverPrx receiver) {
-        clientCount++;
-        long id = clientCount;
-        clientReceivers.put(id, receiver);
-        return id;
-    }
-
-    public static Map<Long, CallbackReceiverPrx> getSorterReceivers() {
-        return sorterReceivers;
-    }
-
-    public static Map<Long, SorterPrx> getSorters() {
-        return sorters;
-    }
-
-    public static Map<Long, CallbackReceiverPrx> getClientReceivers() {
-        return clientReceivers;
-    }
-
-    public static long getClientCount() {
-        return clientCount;
-    }
-
-    public static void setClientCount(long clientCount) {
-        Server.clientCount = clientCount;
-    }
-
-    public static long getSorterCount() {
-        return workerCount;
-    }
-
-    public static void setSorterCount(long sorterCount) {
-        Server.workerCount = sorterCount;
-    }
 }

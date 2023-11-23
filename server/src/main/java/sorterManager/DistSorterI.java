@@ -7,12 +7,17 @@ import java.util.Arrays;
 
 import com.zeroc.Ice.Current;
 
-import server.Server;
-import Services.CallbackManagerPrx;
-import Services.SorterPrx;
-// import Services.CallbackManagerPrx;
+import connections.ConnectionManagerI;
 
 public class DistSorterI implements Services.DistSorter {
+
+    private CallbackManagerI callbackManager;
+    private ConnectionManagerI connectionManager;
+
+    public DistSorterI(CallbackManagerI callbackManager) {
+        this.callbackManager = callbackManager;
+        this.connectionManager = callbackManager.getConnectionManager();
+    }
 
     @Override
     // public String distSort(String path, SubjectPrx subject, Current current) {
@@ -21,35 +26,37 @@ public class DistSorterI implements Services.DistSorter {
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
 
-            System.out.println("\n- Total Workers: " + Server.getSorterCount());
+            // System.out.println("\n- Total Workers: " + Server.getSorterCount());
+            System.out.println("\n- Total Workers: " + connectionManager.getSorterCount());
 
-            String[] dividedParts = divide(content, Server.getSorterReceivers().size());
+            // String[] dividedParts = divide(content, Server.getSorterReceivers().size());
+            String[] dividedParts = divide(content, connectionManager.getSorterReceivers().size());
             System.out.println();
             for (String p : dividedParts) {
                 System.out.println("Part: " + p);
             }
 
             // send each part to a sorter
-            if (Server.getSorterReceivers().size() > 0) {
-                int i = 0;
-                String result = "";
-                for (SorterPrx sorter : Server.getSorters().values()) {
-                    result += "\n" + sorter.sort(dividedParts[i]);
-                    // subject._notifyAll(result);
-                    i++;
-                }
+            // // if (Server.getSorterReceivers().size() > 0) {
+            // if (connectionManager.getSorterReceivers().size() > 0) {
+            // int i = 0;
+            // String result = "";
+            // // for (SorterPrx sorter : Server.getSorters().values()) {
+            // for (SorterPrx sorter : connectionManager.getSorters().values()) {
+            // result += "\n" + sorter.sort(dividedParts[i]);
+            // // subject._notifyAll(result);
+            // i++;
+            // }
 
-                return sort(result, current);
-            }
+            // return sort(result, current);
+
+            // }
 
             return sort(content, current);
 
-            // result = sort(result, current);
-            // subject._notifyAll(result);
+            // callbackManager.initiateCallback(1, content, current);
 
-            // return "File content read successfully!";
-
-            // return result;
+            // return "Result processed successfully!";
 
         } catch (IOException e) {
             return "Error reading or sorting the file: " + e.getMessage();
