@@ -18,9 +18,16 @@ module Services {
     }
     interface CallbackManager {
         bool initiateCallback(long id, string s);
+        //long registerClient(string hostname, CallbackReceiver* receiverProxy);
+        //void removeClient(long id);
+        //long registerWorker(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
+        //void removeWorker(long id);
+    }
+    interface ConnectionManager {
         long registerClient(string hostname, CallbackReceiver* receiverProxy);
         void removeClient(long id);
-        long registerWorker(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
+        long registerSorter(string hostname, CallbackReceiver* receiverProxy, Sorter* sorterProxy);
+        void removeSorter(long id);
     }
     interface Subject {
         void attach(Observer* observer);
@@ -28,7 +35,7 @@ module Services {
         void notifyAll(string s);
     }
 
-    // Manager
+    // Client
 
     interface CallbackReceiver {
         void receiveCallback(string s);

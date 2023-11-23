@@ -1,3 +1,5 @@
+package sorterManager;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -5,29 +7,12 @@ import java.util.Arrays;
 
 import com.zeroc.Ice.Current;
 
+import server.Server;
+import Services.CallbackManagerPrx;
 import Services.SorterPrx;
 // import Services.CallbackManagerPrx;
 
 public class DistSorterI implements Services.DistSorter {
-
-    // @Override
-    // public String readFile(String path, long id, CallbackManagerPrx
-    // callbackManager, Current current) {
-    // System.out.println("\nFile read request received from Client " + id);
-    // try {
-    // // Use Java NIO to read the content of the file into a string
-    // String content = new String(Files.readAllBytes(Paths.get(path)));
-
-    // callbackManager.initiateCallback(id, content);
-    // return "File content read successfully!";
-
-    // // return content;
-
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // return "Error reading or sorting the file: " + e.getMessage();
-    // }
-    // }
 
     @Override
     // public String distSort(String path, SubjectPrx subject, Current current) {
@@ -36,30 +21,33 @@ public class DistSorterI implements Services.DistSorter {
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
 
-            String[] dividedParts = divide(content, Server.getWorkerSorters().size());
+            System.out.println("\n- Total Workers: " + Server.getSorterCount());
+
+            String[] dividedParts = divide(content, Server.getSorterReceivers().size());
             System.out.println();
             for (String p : dividedParts) {
                 System.out.println("Part: " + p);
             }
 
             // send each part to a sorter
-            if (Server.getWorkerSorters().size() > 0) {
+            if (Server.getSorterReceivers().size() > 0) {
                 int i = 0;
                 String result = "";
-                for (SorterPrx sorter : Server.getWorkerSorters().values()) {
+                for (SorterPrx sorter : Server.getSorters().values()) {
                     result += "\n" + sorter.sort(dividedParts[i]);
                     // subject._notifyAll(result);
                     i++;
                 }
+
+                return sort(result, current);
             }
 
-            if (Server.getWorkerCount() == 0) {
-                return sort(content, current);
-            }
+            return sort(content, current);
+
             // result = sort(result, current);
             // subject._notifyAll(result);
 
-            return "File content read successfully!";
+            // return "File content read successfully!";
 
             // return result;
 
@@ -70,7 +58,7 @@ public class DistSorterI implements Services.DistSorter {
 
     @Override
     public String sort(String s, Current current) {
-        System.out.println("\nSorting file content...");
+        System.out.println("\nSorting file content from Server...");
 
         String[] lines = s.split("\n");
 

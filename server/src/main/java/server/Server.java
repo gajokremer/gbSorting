@@ -1,3 +1,4 @@
+package server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,13 +9,16 @@ import Services.SorterPrx;
 // import serversorterManager.CallbackManagerI;
 // import server.sorterManager.DistSorterI;
 // import server.sorterManager.SubjectI;
+import sorterManager.CallbackManagerI;
+import sorterManager.DistSorterI;
+import connections.ConnectionManagerI;
 
 import java.util.HashMap;
 
 public class Server {
-    private static Map<Long, CallbackReceiverPrx> workerReceivers = new HashMap<>();
-    private static Map<Long, SorterPrx> workerSorters = new HashMap<>();
-    private static Map<Long, CallbackReceiverPrx> clients = new HashMap<>();
+    private static Map<Long, CallbackReceiverPrx> sorterReceivers = new HashMap<>();
+    private static Map<Long, SorterPrx> sorters = new HashMap<>();
+    private static Map<Long, CallbackReceiverPrx> clientReceivers = new HashMap<>();
     private static long clientCount = 0;
     private static long workerCount = 0;
 
@@ -37,25 +41,20 @@ public class Server {
 
             System.out.println("\nSERVER STARTED...");
 
-            // com.zeroc.Ice.ObjectAdapter sorterAdapter =
-            // communicator.createObjectAdapter("Sorter");
-            // sorterAdapter.add(new SorterI(),
-            // com.zeroc.Ice.Util.stringToIdentity("SimpleSorter"));
-            // sorterAdapter.activate();
-
-            com.zeroc.Ice.ObjectAdapter readerAdapter = communicator.createObjectAdapter("DistSorter");
-            readerAdapter.add(new DistSorterI(), com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
-            readerAdapter.activate();
+            com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("DistSorter");
+            sorterAdapter.add(new DistSorterI(), com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
+            sorterAdapter.activate();
 
             com.zeroc.Ice.ObjectAdapter callbackManagerAdapter = communicator.createObjectAdapter("CallbackManager");
-            callbackManagerAdapter.add(new CallbackManagerI(), com.zeroc.Ice.Util.stringToIdentity("CallbackManager"));
+            callbackManagerAdapter.add(new CallbackManagerI(),
+                    com.zeroc.Ice.Util.stringToIdentity("CallbackManager"));
             callbackManagerAdapter.activate();
 
-            // com.zeroc.Ice.ObjectAdapter subjectAdapter =
-            // communicator.createObjectAdapter("Subject");
-            // subjectAdapter.add(new SubjectI(),
-            // com.zeroc.Ice.Util.stringToIdentity("Subject"));
-            // subjectAdapter.activate();
+            com.zeroc.Ice.ObjectAdapter connectionManagerAdapter = communicator
+                    .createObjectAdapter("ConnectionManager");
+            connectionManagerAdapter.add(new ConnectionManagerI(),
+                    com.zeroc.Ice.Util.stringToIdentity("ConnectionManager"));
+            connectionManagerAdapter.activate();
 
             communicator.waitForShutdown();
             // communicator.destroy();
@@ -72,28 +71,28 @@ public class Server {
     public static synchronized long registerWorker(CallbackReceiverPrx receiverProxy, SorterPrx sorterProxy) {
         workerCount++;
         long id = workerCount;
-        workerReceivers.put(id, receiverProxy);
-        workerSorters.put(id, sorterProxy);
+        sorterReceivers.put(id, receiverProxy);
+        sorters.put(id, sorterProxy);
         return id;
     }
 
     public static synchronized long registerClient(CallbackReceiverPrx receiver) {
         clientCount++;
         long id = clientCount;
-        clients.put(id, receiver);
+        clientReceivers.put(id, receiver);
         return id;
     }
 
-    public static Map<Long, CallbackReceiverPrx> getWorkerReceivers() {
-        return workerReceivers;
+    public static Map<Long, CallbackReceiverPrx> getSorterReceivers() {
+        return sorterReceivers;
     }
 
-    public static Map<Long, SorterPrx> getWorkerSorters() {
-        return workerSorters;
+    public static Map<Long, SorterPrx> getSorters() {
+        return sorters;
     }
 
-    public static Map<Long, CallbackReceiverPrx> getClients() {
-        return clients;
+    public static Map<Long, CallbackReceiverPrx> getClientReceivers() {
+        return clientReceivers;
     }
 
     public static long getClientCount() {
@@ -104,11 +103,11 @@ public class Server {
         Server.clientCount = clientCount;
     }
 
-    public static long getWorkerCount() {
+    public static long getSorterCount() {
         return workerCount;
     }
 
-    public static void setWorkerCount(long workerCount) {
-        Server.workerCount = workerCount;
+    public static void setSorterCount(long sorterCount) {
+        Server.workerCount = sorterCount;
     }
 }

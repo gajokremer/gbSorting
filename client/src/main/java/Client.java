@@ -5,10 +5,10 @@ import java.util.Scanner;
 import Services.ObserverPrx;
 import Services.CallbackManagerPrx;
 import Services.CallbackReceiverPrx;
-import Services.DistSorter;
+import Services.ConnectionManagerPrx;
 import Services.DistSorterPrx;
 import Services.SubjectPrx;
-import observer.ObserverI;
+import communicator.CallbackReceiver;
 
 public class Client {
 
@@ -33,31 +33,31 @@ public class Client {
                     .ice_twoway()
                     .ice_secure(false);
 
-            // Services.SubjectPrx subject = Services.SubjectPrx
-            // .checkedCast(communicator.propertyToProxy("Subject.Proxy"))
-            // .ice_twoway()
-            // .ice_secure(false);
+            Services.ConnectionManagerPrx connectionManager = Services.ConnectionManagerPrx
+                    .checkedCast(communicator.propertyToProxy("ConnectionManager.Proxy"))
+                    .ice_twoway()
+                    .ice_secure(false);
 
             Services.CallbackManagerPrx callbackManager = Services.CallbackManagerPrx
                     .checkedCast(communicator.propertyToProxy("CallbackManager.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (distSorter == null || callbackManager == null) {
+            if (distSorter == null || connectionManager == null || callbackManager == null) {
                 throw new Error("Invalid proxy");
             }
 
             com.zeroc.Ice.ObjectAdapter receiverAdapter = communicator.createObjectAdapter("CallbackReceiver");
-            receiverAdapter.add(new ObserverI(), com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
+            receiverAdapter.add(new CallbackReceiver(), com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver"));
             receiverAdapter.activate();
             Services.CallbackReceiverPrx receiver = Services.CallbackReceiverPrx.uncheckedCast(receiverAdapter
                     .createProxy(com.zeroc.Ice.Util.stringToIdentity("CallbackReceiver")));
 
-            System.out.println("\nMANAGER STARTED...");
+            System.out.println("\nCLIENT STARTED...");
 
             // rest of the code goes here
 
-            askForInput(distSorter, callbackManager, receiver);
+            askForInput(distSorter, connectionManager, callbackManager, receiver);
 
             // subject.attach(observer);
 
@@ -65,10 +65,11 @@ public class Client {
         }
     }
 
-    private static void askForInput(DistSorterPrx sorter, CallbackManagerPrx manager, CallbackReceiverPrx receiver) {
+    private static void askForInput(DistSorterPrx sorter, ConnectionManagerPrx connectionManager, CallbackManagerPrx callbackManager, CallbackReceiverPrx receiver) {
 
         String hostname = getHostname();
-        long clientId = manager.registerClient(hostname, receiver);
+        // long clientId = manager.registerClient(hostname, receiver);
+        long clientId = connectionManager.registerClient(hostname, receiver);
         System.out.println("\n-> Client Id: " + clientId + "\n");
 
         while (true) {
@@ -95,7 +96,8 @@ public class Client {
             }
 
             if (input.equals("exit")) {
-                manager.removeClient(clientId);
+                // callbackManager.removeClient(clientId);
+                connectionManager.removeClient(clientId);
                 System.out.println("\nDisconnecting from server...\n");
                 break;
             }

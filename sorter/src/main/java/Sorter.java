@@ -2,6 +2,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import Services.CallbackReceiverPrx;
 import Services.SorterPrx;
@@ -18,7 +19,12 @@ public class Sorter {
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (callbackManager == null) {
+            Services.ConnectionManagerPrx connectionManager = Services.ConnectionManagerPrx
+                    .checkedCast(communicator.propertyToProxy("ConnectionManager.Proxy"))
+                    .ice_twoway()
+                    .ice_secure(false);
+
+            if (callbackManager == null || connectionManager == null) {
                 throw new Error("Invalid proxy");
             }
 
@@ -38,11 +44,18 @@ public class Sorter {
             System.out.println("\nSORTER STARTED...\n");
 
             String hostname = getHostname();
-            long sorterId = callbackManager.registerWorker(hostname, receiver, sorter);
+            long sorterId = connectionManager.registerSorter(hostname, receiver, sorter);
             System.out.println("-> Sorter Id: " + sorterId + "\n");
 
             while (true) {
                 // do nothing
+                Scanner sc = new Scanner(System.in);
+                String input = sc.nextLine();
+                if (input.equals("exit")) {
+                    connectionManager.removeSorter(sorterId);
+                    System.out.println("\nDisconnecting " + sorterId + " from server...");
+                    System.exit(0);
+                }
             }
         }
     }
