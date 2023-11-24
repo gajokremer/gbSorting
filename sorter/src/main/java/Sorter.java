@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import Services.ResponseReceiverPrx;
 import Services.SorterPrx;
-import receiver.ResponseReceiverS;
+import registry.Registry;
+// import receiver.ResponseReceiverS;
+import worker.SorterI;
 
 public class Sorter {
+
     public static void main(String[] args) {
         List<String> extraArgs = new ArrayList<>();
 
@@ -28,12 +30,14 @@ public class Sorter {
                 throw new Error("Invalid proxy");
             }
 
-            com.zeroc.Ice.ObjectAdapter responseReceiverAdapter = communicator.createObjectAdapter("ResponseReceiver");
-            responseReceiverAdapter.add(new ResponseReceiverS(),
-                    com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver"));
-            responseReceiverAdapter.activate();
-            ResponseReceiverPrx receiver = ResponseReceiverPrx.uncheckedCast(responseReceiverAdapter
-                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver")));
+            // com.zeroc.Ice.ObjectAdapter responseReceiverAdapter =
+            // communicator.createObjectAdapter("ResponseReceiver");
+            // responseReceiverAdapter.add(new ResponseReceiverS(),
+            // com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver"));
+            // responseReceiverAdapter.activate();
+            // ResponseReceiverPrx receiver =
+            // ResponseReceiverPrx.uncheckedCast(responseReceiverAdapter
+            // .createProxy(com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver")));
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
             sorterAdapter.add(new SorterI(), com.zeroc.Ice.Util.stringToIdentity("Sorter"));
@@ -43,31 +47,8 @@ public class Sorter {
 
             System.out.println("\nSORTER STARTED...\n");
 
-            String hostname = getHostname();
-            long sorterId = connectionManager.registerSorter(hostname, receiver, sorter);
-            System.out.println("-> Sorter Id: " + sorterId + "\n");
-
-            while (true) {
-                // do nothing
-                Scanner sc = new Scanner(System.in);
-                String input = sc.nextLine();
-                if (input.equals("exit")) {
-                    connectionManager.removeSorter(sorterId);
-                    System.out.println("\nDisconnecting " + sorterId + " from server...");
-                    System.exit(0);
-                }
-            }
-        }
-    }
-
-    private static String getHostname() {
-        try {
-            InetAddress localHost = InetAddress.getLocalHost();
-            return localHost.getHostName();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
-            return "Unable to retrieve hostname";
+            Registry registry = new Registry();
+            registry.register(connectionManager, sorter);
         }
     }
 }

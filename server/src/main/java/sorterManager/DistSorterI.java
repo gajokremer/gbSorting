@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import com.zeroc.Ice.Current;
 
+import Services.SorterPrx;
 import connections.ResponseManagerI;
 import connections.ConnectionManagerI;
 
@@ -22,7 +23,7 @@ public class DistSorterI implements Services.DistSorter {
 
     @Override
     // public String distSort(String path, SubjectPrx subject, Current current) {
-    public String distSort(String path, Current current) {
+    public String distSort(long id, String path, Current current) {
         System.out.println("\nFile read request received from Client -> " + path);
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
@@ -30,42 +31,46 @@ public class DistSorterI implements Services.DistSorter {
             // System.out.println("\n- Total Workers: " + Server.getSorterCount());
             System.out.println("\n- Total Workers: " + connectionManager.getSorterCount());
 
-            // String[] dividedParts = divide(content, Server.getSorterReceivers().size());
-            String[] dividedParts = divide(content, connectionManager.getSorterReceivers().size());
-            System.out.println();
-            for (String p : dividedParts) {
-                System.out.println("Part: " + p);
+            String[] lines = content.split("\n");
+            String result = "";
+
+            if (connectionManager.getSorterCount() > 0) {
+                String[] parts = divide(lines, connectionManager.getSorterCount());
+                // System.out.println("\n- Total Parts: " + parts.length);
+                for (String r : parts) {
+                    System.out.println("\n- Length: " + partLength(r));
+                    System.out.println(r);
+                }
+
+                // for (String p : parts) {
+                // result += "\n" + p;
+                // }
+
+                // send each part to a sorter
+
+                int i = 0;
+                for (SorterPrx sorter : connectionManager.getSorters().values()) {
+                    result += "\n" + sorter.sort(parts[i]);
+                    // subject._notifyAll(result);
+                    i++;
+                }
+
+                // return sort(result, current);
+
             }
 
-            // send each part to a sorter
-            // // if (Server.getSorterReceivers().size() > 0) {
-            // if (connectionManager.getSorterReceivers().size() > 0) {
-            // int i = 0;
-            // String result = "";
-            // // for (SorterPrx sorter : Server.getSorters().values()) {
-            // for (SorterPrx sorter : connectionManager.getSorters().values()) {
-            // result += "\n" + sorter.sort(dividedParts[i]);
-            // // subject._notifyAll(result);
-            // i++;
-            // }
+            result = sort(result);
 
-            // return sort(result, current);
+            responseManager.respondToClient(id, result, current);
 
-            // }
-
-            return sort(content, current);
-
-            // callbackManager.initiateCallback(1, content, current);
-
-            // return "Result processed successfully!";
+            return "Result processed successfully!";
 
         } catch (IOException e) {
             return "Error reading or sorting the file: " + e.getMessage();
         }
     }
 
-    @Override
-    public String sort(String s, Current current) {
+    private String sort(String s) {
         System.out.println("\nSorting file content from Server...");
 
         String[] lines = s.split("\n");
@@ -83,42 +88,38 @@ public class DistSorterI implements Services.DistSorter {
         return result;
     }
 
-    private String[] divide(String content, int parts) {
-        // Check for invalid input
-        if (content == null || content.isEmpty() || parts <= 0) {
-            // Handle invalid input
-            return new String[] { content };
-        }
+    private static String[] divide(String[] lines, int parts) {
 
-        // Calculate the length of each part
-        int length = content.length();
-        int partLength = length / parts;
-        int remainder = length % parts;
+        // if (lines == null || lines.length == 0 || parts <= 0) {
+        // return new String[] { "" };
+        // }
 
-        // Initialize an array to store the parts
-        String[] dividedParts = new String[parts];
+        int partLength = lines.length / parts;
+        int remainder = lines.length % parts;
 
-        // Iterate through each part
-        int startIndex = 0;
+        String[] result = new String[parts];
+        int startIdx = 0;
+
         for (int i = 0; i < parts; i++) {
-            // Calculate the endIndex for each part
-            int endIndex = startIndex + partLength + (i < remainder ? 1 : 0);
+            int endIdx = startIdx + partLength + (i < remainder ? 1 : 0);
+            StringBuilder sb = new StringBuilder();
 
-            // Find the nearest newline character to the calculated endIndex
-            int newlineIndex = content.lastIndexOf('\n', endIndex - 1);
-
-            // If a newline is found, adjust the endIndex to include the newline character
-            if (newlineIndex != -1 && newlineIndex >= startIndex) {
-                endIndex = newlineIndex + 1;
+            for (int j = startIdx; j < endIdx; j++) {
+                sb.append(lines[j]);
+                if (j < endIdx - 1) {
+                    sb.append("\n");
+                }
             }
 
-            // Extract the substring for the current part
-            dividedParts[i] = content.substring(startIndex, endIndex);
-
-            // Update the startIndex for the next part
-            startIndex = endIndex;
+            result[i] = sb.toString();
+            startIdx = endIdx;
         }
 
-        return dividedParts;
+        return result;
+    }
+
+    private int partLength(String part) {
+        String[] lines = part.split("\n");
+        return lines.length;
     }
 }

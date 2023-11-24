@@ -10,16 +10,16 @@ import Services.SorterPrx;
 
 public class ConnectionManagerI implements Services.ConnectionManager {
 
-    private Map<Long, ResponseReceiverPrx> sorterReceivers = new HashMap<>();
+    // private Map<Long, ResponseReceiverPrx> sorterReceivers = new HashMap<>();
     private Map<Long, SorterPrx> sorters = new HashMap<>();
     private Map<Long, ResponseReceiverPrx> clientReceivers = new HashMap<>();
 
-    private long clientCount = 0;
-    private long sorterCount = 0;
+    private int clientCount = 0;
+    private int sorterCount = 0;
 
-    public Map<Long, ResponseReceiverPrx> getSorterReceivers() {
-        return sorterReceivers;
-    }
+    // public Map<Long, ResponseReceiverPrx> getSorterReceivers() {
+    // return sorterReceivers;
+    // }
 
     public Map<Long, SorterPrx> getSorters() {
         return sorters;
@@ -29,18 +29,20 @@ public class ConnectionManagerI implements Services.ConnectionManager {
         return clientReceivers;
     }
 
-    public long getClientCount() {
+    public int getClientCount() {
         return clientCount;
     }
 
-    public long getSorterCount() {
+    public int getSorterCount() {
         return sorterCount;
     }
 
     @Override
     public long registerClient(String hostname, ResponseReceiverPrx receiverProxy, Current current) {
         long clientId = 0;
-        clientId = registerClient(receiverProxy);
+        synchronized (this) {
+            clientId = registerClient(receiverProxy);
+        }
         System.out.println("\n-> Registering Client with ID '" + clientId + "' from host: " + hostname);
         return clientId;
     }
@@ -53,31 +55,33 @@ public class ConnectionManagerI implements Services.ConnectionManager {
     }
 
     @Override
-    public long registerSorter(String hostname, ResponseReceiverPrx receiverProxy, SorterPrx sorterProxy,
-            Current current) {
+    public long registerSorter(String hostname, SorterPrx sorterProxy, Current current) {
         long workerId = 0;
-        workerId = registerWorker(receiverProxy, sorterProxy);
+        synchronized (this) {
+            // workerId = registerSorter(receiverProxy, sorterProxy);
+            workerId = registerSorter(sorterProxy);
+        }
         System.out.println("\n-> Registering Sorter with ID '" + workerId + "' from host: " + hostname);
         return workerId;
     }
 
     @Override
     public void removeSorter(long id, Current current) {
-        sorterReceivers.remove(id);
+        // sorterReceivers.remove(id);
         sorters.remove(id);
         sorterCount--;
         System.out.println("\n-> Removing Sorter with ID '" + id + "'");
     }
 
-    public synchronized long registerWorker(ResponseReceiverPrx receiverProxy, SorterPrx sorterProxy) {
+    private synchronized long registerSorter(SorterPrx sorterProxy) {
         sorterCount++;
         long id = sorterCount;
-        sorterReceivers.put(id, receiverProxy);
+        // sorterReceivers.put(id, receiverProxy);
         sorters.put(id, sorterProxy);
         return id;
     }
 
-    public synchronized long registerClient(ResponseReceiverPrx receiver) {
+    private synchronized long registerClient(ResponseReceiverPrx receiver) {
         clientCount++;
         long id = clientCount;
         clientReceivers.put(id, receiver);

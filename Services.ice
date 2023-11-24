@@ -12,17 +12,17 @@ module Services {
     // Server
 
     interface DistSorter {
-        string distSort(string path);
-        string sort(string s);
+        string distSort(long id, string path);
+        //string sort(string s);
     }
     interface ResponseManager {
         //bool initiateCallback(long id, string s);
-        bool respondToClient(long id, string s);
+        bool respondToClient(long id, string response);
     }
     interface ConnectionManager {
         long registerClient(string hostname, ResponseReceiver* receiverProxy);
         void removeClient(long id);
-        long registerSorter(string hostname, ResponseReceiver* receiverProxy, Sorter* sorterProxy);
+        long registerSorter(string hostname, Sorter* sorterProxy);
         void removeSorter(long id);
     }
     interface Subject {
@@ -34,7 +34,7 @@ module Services {
     // Client
 
     interface ResponseReceiver {
-        //void receiveCallback(string s);
+        //void receiveCallback(string response);
         void receiveResponse(string s);
     }
     interface Observer {

@@ -18,13 +18,13 @@ public class ResponseManagerI implements Services.ResponseManager {
 
     @Override
     // public boolean initiateCallback(long id, String s, Current current) {
-    public boolean respondToClient(long id, String s, Current current) {
+    public boolean respondToClient(long id, String response, Current current) {
         ResponseReceiverPrx receiver = connectionManager.getClientReceivers().get(id);
         boolean found = receiver != null;
         if (found) {
             try {
                 // receiver.receiveCallback(s);
-                receiver.receiveResponse(s);
+                receiver.receiveResponse(response);
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }

@@ -1,3 +1,4 @@
+package worker;
 
 import com.zeroc.Ice.Current;
 
@@ -10,8 +11,9 @@ public class SorterI implements Services.Sorter {
 
     @Override
     public String sort(String s, Current current) {
-
-        System.out.println("Sorting file content...");
+        System.out.println("\nFile content received from Server -> \n");
+        System.out.println(s);
+        System.out.println("\nSorting file content...");
 
         String[] lines = s.split("\n");
 
@@ -39,4 +41,5 @@ public class SorterI implements Services.Sorter {
             e.printStackTrace();
         }
     }
+
 }
