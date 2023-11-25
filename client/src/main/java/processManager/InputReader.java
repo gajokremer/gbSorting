@@ -45,7 +45,7 @@ public class InputReader {
             if (input.equals("exit")) {
                 // callbackManager.removeClient(clientId);
                 connectionManager.removeClient(clientId);
-                System.out.println("\nDisconnecting from server...\n");
+                System.out.println("\nDisconnecting Client '" + clientId + "' from server...\n");
                 break;
             }
         }

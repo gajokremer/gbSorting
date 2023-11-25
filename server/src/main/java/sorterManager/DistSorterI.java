@@ -24,29 +24,22 @@ public class DistSorterI implements Services.DistSorter {
     @Override
     // public String distSort(String path, SubjectPrx subject, Current current) {
     public String distSort(long id, String path, Current current) {
-        System.out.println("\nFile read request received from Client -> " + path);
+        System.out.println("\nFile read request received from Client '" + id + "' -> " + "'" + path + "'");
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
 
-            // System.out.println("\n- Total Workers: " + Server.getSorterCount());
             System.out.println("\n- Total Workers: " + connectionManager.getSorterCount());
 
             String[] lines = content.split("\n");
             String result = "";
 
-            if (connectionManager.getSorterCount() > 0) {
+            if (connectionManager.getSorterCount() > 1) {
                 String[] parts = divide(lines, connectionManager.getSorterCount());
-                // System.out.println("\n- Total Parts: " + parts.length);
+
                 for (String r : parts) {
                     System.out.println("\n- Length: " + partLength(r));
                     System.out.println(r);
                 }
-
-                // for (String p : parts) {
-                // result += "\n" + p;
-                // }
-
-                // send each part to a sorter
 
                 int i = 0;
                 for (SorterPrx sorter : connectionManager.getSorters().values()) {
@@ -55,11 +48,13 @@ public class DistSorterI implements Services.DistSorter {
                     i++;
                 }
 
-                // return sort(result, current);
+                result = sort(result);
 
+            } else {
+                result = sort(content);
             }
 
-            result = sort(result);
+            // result = sort(result);
 
             responseManager.respondToClient(id, result, current);
 
@@ -71,7 +66,7 @@ public class DistSorterI implements Services.DistSorter {
     }
 
     private String sort(String s) {
-        System.out.println("\nSorting file content from Server...");
+        System.out.println("\nSorting file content from Server...\n");
 
         String[] lines = s.split("\n");
 

@@ -27,9 +27,10 @@ public class Server {
 
                         ConnectionManagerI connectionManager = new ConnectionManagerI();
                         ResponseManagerI responseManager = new ResponseManagerI(connectionManager);
+                        DistSorterI distSorter = new DistSorterI(responseManager);
 
                         com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("DistSorter");
-                        sorterAdapter.add(new DistSorterI(responseManager),
+                        sorterAdapter.add(distSorter,
                                         com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
                         sorterAdapter.activate();
 

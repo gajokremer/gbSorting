@@ -22,7 +22,8 @@ public class Registry {
             String input = sc.nextLine();
             if (input.equals("exit")) {
                 connectionManager.removeSorter(sorterId);
-                System.out.println("\nDisconnecting " + sorterId + " from server...");
+                System.out.println("\nDisconnecting Sorter '" + sorterId + "' from server...");
+                System.out.println();
                 // System.exit(0);
                 break;
             }

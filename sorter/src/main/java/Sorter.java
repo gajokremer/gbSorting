@@ -1,12 +1,7 @@
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-
 import Services.SorterPrx;
 import registry.Registry;
-// import receiver.ResponseReceiverS;
 import worker.SorterI;
 
 public class Sorter {
