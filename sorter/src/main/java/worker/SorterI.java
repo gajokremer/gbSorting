@@ -11,8 +11,10 @@ public class SorterI implements Services.Sorter {
 
     @Override
     public String sort(String s, Current current) {
-        System.out.println("\nFile content received from Server -> \n");
-        System.out.println(s);
+        // System.out.println("\nFile content received from Server -> \n");
+        // System.out.println(s);
+
+        System.out.println("\nFile content received from Server");
         System.out.println("\nSorting file content...\n");
 
         String[] lines = s.split("\n");

@@ -20,20 +20,21 @@ public class InputReader {
         System.out.println("\n-> Client Id: " + clientId + "\n");
 
         while (true) {
-            // System.out.println("Enter file path: ");
             System.out.print("\n-> ");
             String input = sc.nextLine();
 
             if (input.contains(";")) {
-                String[] parts = input.split(";");
-                String path = parts[1];
+                // String[] parts = input.split(";");
+                // String file = parts[1];
 
-                String sharedPath = "/opt/share/gb/";
-                path = sharedPath + path;
+                // String path = "/opt/share/gb/";
+                // path = path + file + ".txt";
+
+                // String path = "/opt/share/gb/" + input.split(";")[1] + ".txt";
+                String path = "/opt/share/gb/input.txt";
 
                 long startTime = System.currentTimeMillis();
 
-                // String result = sorter.distSort(path, subject);
                 String result = sorter.distSort(clientId, path);
                 System.out.println("\n" + result + "\n");
 
@@ -43,7 +44,6 @@ public class InputReader {
             }
 
             if (input.equals("exit")) {
-                // callbackManager.removeClient(clientId);
                 connectionManager.removeClient(clientId);
                 System.out.println("\nDisconnecting Client '" + clientId + "' from server...\n");
                 break;

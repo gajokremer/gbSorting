@@ -22,7 +22,6 @@ public class DistSorterI implements Services.DistSorter {
     }
 
     @Override
-    // public String distSort(String path, SubjectPrx subject, Current current) {
     public String distSort(long id, String path, Current current) {
         System.out.println("\nFile read request received from Client '" + id + "' -> " + "'" + path + "'");
         try {
@@ -36,15 +35,14 @@ public class DistSorterI implements Services.DistSorter {
             if (connectionManager.getSorterCount() > 1) {
                 String[] parts = divide(lines, connectionManager.getSorterCount());
 
-                for (String r : parts) {
-                    System.out.println("\n- Length: " + partLength(r));
-                    System.out.println(r);
-                }
+                // for (String r : parts) {
+                //     System.out.println("\n- Length: " + partLength(r));
+                //     System.out.println(r);
+                // }
 
                 int i = 0;
                 for (SorterPrx sorter : connectionManager.getSorters().values()) {
                     result += "\n" + sorter.sort(parts[i]);
-                    // subject._notifyAll(result);
                     i++;
                 }
 
