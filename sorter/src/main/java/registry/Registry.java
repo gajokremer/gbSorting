@@ -17,6 +17,13 @@ public class Registry {
         long sorterId = connectionManager.registerSorter(hostname, sorter);
         System.out.println("-> Sorter Id: " + sorterId + "\n");
 
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                connectionManager.removeClient(sorterId);
+                System.out.println("\n\nDisconnecting Sorter '" + sorterId + "' from server...\n");
+            }
+        });
+
         while (true) {
             // do nothing
             String input = sc.nextLine();

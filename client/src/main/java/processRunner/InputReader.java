@@ -1,4 +1,4 @@
-package processManager;
+package processRunner;
 
 import java.util.Scanner;
 
@@ -18,6 +18,13 @@ public class InputReader {
         // long clientId = manager.registerClient(hostname, receiver);
         long clientId = connectionManager.registerClient(hostname, receiver);
         System.out.println("\n-> Client Id: " + clientId + "\n");
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                connectionManager.removeClient(clientId);
+                System.out.println("\n\nDisconnecting Client '" + clientId + "' from server...\n");
+            }
+        });
 
         while (true) {
             System.out.print("\n-> ");

@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
-import processManager.InputReader;
+
+import processRunner.InputReader;
 import responseReceiver.ResponseReceiverI;
 
 public class Client {
@@ -57,6 +58,9 @@ public class Client {
 
                         InputReader inputReader = new InputReader();
                         inputReader.askForInput(distSorter, connectionManager, responseManager, receiver);
+
+                        // kill the client when using control + c
+                       
                 }
         }
 
