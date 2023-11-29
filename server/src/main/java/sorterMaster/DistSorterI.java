@@ -1,4 +1,4 @@
-package sorterManager;
+package sorterMaster;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,8 +8,8 @@ import java.util.Arrays;
 import com.zeroc.Ice.Current;
 
 import Services.SorterPrx;
-import connections.ResponseManagerI;
-import connections.ConnectionManagerI;
+import clientManager.ConnectionManagerI;
+import clientManager.ResponseManagerI;
 
 public class DistSorterI implements Services.DistSorter {
 

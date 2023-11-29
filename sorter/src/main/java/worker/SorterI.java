@@ -2,9 +2,6 @@ package worker;
 
 import com.zeroc.Ice.Current;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
 
 public class SorterI implements Services.Sorter {
@@ -32,16 +29,16 @@ public class SorterI implements Services.Sorter {
         return result;
     }
 
-    private void writeToFile(String content) {
-        // Specify the path to the output.txt file
-        String filePath = "data/output.txt";
+    // private void writeToFile(String content) {
+    // // Specify the path to the output.txt file
+    // String filePath = "data/output.txt";
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            writer.write(content);
-            System.out.println("Result written to " + filePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+    // writer.write(content);
+    // System.out.println("Result written to " + filePath);
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
+    // }
 
 }

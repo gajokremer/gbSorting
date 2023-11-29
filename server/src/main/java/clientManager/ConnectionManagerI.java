@@ -1,4 +1,4 @@
-package connections;
+package clientManager;
 
 import com.zeroc.Ice.Current;
 

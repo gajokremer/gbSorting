@@ -1,4 +1,4 @@
-package processRunner;
+package reader;
 
 import java.util.Scanner;
 

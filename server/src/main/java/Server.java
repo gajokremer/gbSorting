@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import sorterManager.DistSorterI;
-import connections.ResponseManagerI;
-import connections.ConnectionManagerI;
+import clientManager.ConnectionManagerI;
+import clientManager.ResponseManagerI;
+import sorterMaster.DistSorterI;
 
 public class Server {
 
