@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import Services.SorterManager;
 import clientManager.ConnectionManagerI;
 import clientManager.ResponseManagerI;
 import sorterMaster.DistSorterI;
+import sorterPool.SorterManagerI;
 
 public class Server {
 
@@ -26,25 +28,39 @@ public class Server {
                                 extraArgs)) {
 
                         ConnectionManagerI connectionManager = new ConnectionManagerI();
+                        SorterManagerI sorterManager = new SorterManagerI();
                         ResponseManagerI responseManager = new ResponseManagerI(connectionManager);
-                        DistSorterI distSorter = new DistSorterI(responseManager);
+                        DistSorterI distSorter = new DistSorterI(responseManager, sorterManager);
 
-                        com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("DistSorter");
-                        sorterAdapter.add(distSorter,
-                                        com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
-                        sorterAdapter.activate();
+                        // com.zeroc.Ice.ObjectAdapter sorterAdapter =
+                        // communicator.createObjectAdapter("DistSorter");
+                        // sorterAdapter.add(distSorter,
+                        // com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
+                        // sorterAdapter.activate();
 
-                        com.zeroc.Ice.ObjectAdapter responseManagerAdapter = communicator
-                                        .createObjectAdapter("ResponseManager");
-                        responseManagerAdapter.add(responseManager,
-                                        com.zeroc.Ice.Util.stringToIdentity("ResponseManager"));
-                        responseManagerAdapter.activate();
+                        // com.zeroc.Ice.ObjectAdapter responseManagerAdapter = communicator
+                        // .createObjectAdapter("ResponseManager");
+                        // responseManagerAdapter.add(responseManager,
+                        // com.zeroc.Ice.Util.stringToIdentity("ResponseManager"));
+                        // responseManagerAdapter.activate();
 
-                        com.zeroc.Ice.ObjectAdapter connectionManagerAdapter = communicator
-                                        .createObjectAdapter("ConnectionManager");
-                        connectionManagerAdapter.add(connectionManager,
-                                        com.zeroc.Ice.Util.stringToIdentity("ConnectionManager"));
-                        connectionManagerAdapter.activate();
+                        // com.zeroc.Ice.ObjectAdapter connectionManagerAdapter = communicator
+                        // .createObjectAdapter("ConnectionManager");
+                        // connectionManagerAdapter.add(connectionManager,
+                        // com.zeroc.Ice.Util.stringToIdentity("ConnectionManager"));
+                        // connectionManagerAdapter.activate();
+
+                        // com.zeroc.Ice.ObjectAdapter sorterManagerAdapter = communicator
+                        // .createObjectAdapter("SorterManager");
+                        // sorterManagerAdapter.add(sorterManager,
+                        // com.zeroc.Ice.Util.stringToIdentity("SorterManager"));
+
+                        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("DistSorter");
+                        adapter.add(distSorter, com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
+                        adapter.add(responseManager, com.zeroc.Ice.Util.stringToIdentity("ResponseManager"));
+                        adapter.add(connectionManager, com.zeroc.Ice.Util.stringToIdentity("ConnectionManager"));
+                        adapter.add(sorterManager, com.zeroc.Ice.Util.stringToIdentity("SorterManager"));
+                        adapter.activate();
 
                         System.out.println("\nSERVER STARTED...");
 

@@ -8,17 +8,19 @@ import java.util.Arrays;
 import com.zeroc.Ice.Current;
 
 import Services.SorterPrx;
-import clientManager.ConnectionManagerI;
 import clientManager.ResponseManagerI;
+import sorterPool.SorterManagerI;
 
 public class DistSorterI implements Services.DistSorter {
 
     private ResponseManagerI responseManager;
-    private ConnectionManagerI connectionManager;
+    // private ConnectionManagerI connectionManager;
+    private SorterManagerI sorterManager;
 
-    public DistSorterI(ResponseManagerI callbackManager) {
-        this.responseManager = callbackManager;
-        this.connectionManager = callbackManager.getConnectionManager();
+    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager) {
+        this.responseManager = responseManager;
+        // this.connectionManager = responseManager.getConnectionManager();
+        this.sorterManager = sorterManager;
     }
 
     @Override
@@ -27,21 +29,21 @@ public class DistSorterI implements Services.DistSorter {
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
 
-            System.out.println("\n- Total Workers: " + connectionManager.getSorterCount());
+            System.out.println("\n- Total Workers: " + sorterManager.getSorterCount());
 
             String[] lines = content.split("\n");
             String result = "";
 
-            if (connectionManager.getSorterCount() > 1) {
-                String[] parts = divide(lines, connectionManager.getSorterCount());
+            if (sorterManager.getSorterCount() > 1) {
+                String[] parts = divide(lines, sorterManager.getSorterCount());
 
                 // for (String r : parts) {
-                //     System.out.println("\n- Length: " + partLength(r));
-                //     System.out.println(r);
+                // System.out.println("\n- Length: " + partLength(r));
+                // System.out.println(r);
                 // }
 
                 int i = 0;
-                for (SorterPrx sorter : connectionManager.getSorters().values()) {
+                for (SorterPrx sorter : sorterManager.getSorters().values()) {
                     result += "\n" + sorter.sort(parts[i]);
                     i++;
                 }
@@ -52,7 +54,7 @@ public class DistSorterI implements Services.DistSorter {
                 result = sort(content);
             }
 
-            // result = sort(result);
+            result = sort(result);
 
             responseManager.respondToClient(id, result, current);
 

@@ -22,6 +22,10 @@ module Services {
     interface ConnectionManager {
         long registerClient(string hostname, ResponseReceiver* receiverProxy);
         void removeClient(long id);
+        //long registerSorter(string hostname, Sorter* sorterProxy);
+        //void removeSorter(long id);
+    }
+    interface SorterManager {
         long registerSorter(string hostname, Sorter* sorterProxy);
         void removeSorter(long id);
     }

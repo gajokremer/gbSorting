@@ -3,6 +3,7 @@ package clientManager;
 import com.zeroc.Ice.Current;
 
 import Services.ResponseReceiverPrx;
+import sorterPool.SorterManagerI;
 
 public class ResponseManagerI implements Services.ResponseManager {
 
