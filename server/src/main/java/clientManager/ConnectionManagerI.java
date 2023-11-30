@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import Services.ResponseReceiverPrx;
-import Services.SorterPrx;
 
 public class ConnectionManagerI implements Services.ConnectionManager {
 

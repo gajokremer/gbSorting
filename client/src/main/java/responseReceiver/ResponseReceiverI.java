@@ -25,7 +25,7 @@ public class ResponseReceiverI implements Services.ResponseReceiver {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writer.write(content);
-            System.out.println("\nResult written to " + filePath);
+            System.out.println("\nResult written to '" + filePath + "'.");
         } catch (IOException e) {
             e.printStackTrace();
         }

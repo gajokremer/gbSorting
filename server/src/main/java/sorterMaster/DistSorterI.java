@@ -54,11 +54,11 @@ public class DistSorterI implements Services.DistSorter {
                 result = sort(content);
             }
 
-            result = sort(result);
+            // result = sort(result);
 
             responseManager.respondToClient(id, result, current);
 
-            return "Result processed successfully!";
+            return "SERVER -> Result processed successfully!";
 
         } catch (IOException e) {
             return "Error reading or sorting the file: " + e.getMessage();

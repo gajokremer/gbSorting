@@ -8,6 +8,13 @@ module Services {
     interface ResponseReceiver;
     interface Observer;
     interface Sorter;
+    interface ConnectionManager;
+    interface SorterManager;
+    interface ForkJoinMaster;
+
+    //class ForkJoinTask {
+    //    string str;
+    //}
 
     // Server
 
@@ -34,6 +41,9 @@ module Services {
         void detach(Observer* observer);
         void notifyAll(string s);
     }
+    interface ForkJoinMaster {
+        void invoke();
+    }
 
     // Client
 
@@ -42,7 +52,7 @@ module Services {
         void receiveResponse(string s);
     }
     interface Observer {
-        void update(string s);
+        void update();
     }
 
     // Sorter

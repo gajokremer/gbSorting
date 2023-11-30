@@ -28,17 +28,4 @@ public class SorterI implements Services.Sorter {
         // return "Result processed successfully!";
         return result;
     }
-
-    // private void writeToFile(String content) {
-    // // Specify the path to the output.txt file
-    // String filePath = "data/output.txt";
-
-    // try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-    // writer.write(content);
-    // System.out.println("Result written to " + filePath);
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
-    // }
-
 }
