@@ -25,8 +25,6 @@ public class Registry {
         long sorterId = sorterManager.registerSorter(hostname, sorterPrx);
         System.out.println("-> Sorter Id: " + sorterId + "\n");
 
-        distSorter.attach(sorterPrx);
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 sorterManager.removeSorter(sorterId);

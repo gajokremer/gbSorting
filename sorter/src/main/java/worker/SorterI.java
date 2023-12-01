@@ -3,7 +3,6 @@ package worker;
 import com.zeroc.Ice.Current;
 
 import Services.DistSorterPrx;
-import Services.SorterPrx;
 
 import java.util.Arrays;
 
@@ -15,21 +14,9 @@ public class SorterI implements Services.Sorter {
     // this.master = master;
     // }
 
-    // private DistSorterPrx distSorter;
-    // private SorterPrx sorterPrx;
-
-    // public SorterI(DistSorterPrx distSorter) {
-    //     this.distSorter = distSorter;
-    // }
-
-    // public void setSorterPrx(SorterPrx sorterPrx) {
-    //     this.sorterPrx = sorterPrx;
-    // }
-
     @Override
     public void update(Current current) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        System.out.println("\nSorter updated!");
     }
 
     public String sort(String s, Current current) {

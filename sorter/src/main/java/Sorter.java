@@ -12,12 +12,12 @@ public class Sorter {
 
         try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, "sorter.cfg", extraArgs)) {
 
-            Services.SorterManagerPrx sorterManager = Services.SorterManagerPrx
+            Services.SorterManagerPrx sorterManagerPrx = Services.SorterManagerPrx
                     .checkedCast(communicator.propertyToProxy("SorterManager.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
-            Services.DistSorterPrx distSorter = Services.DistSorterPrx
+            Services.DistSorterPrx distSorterPrx = Services.DistSorterPrx
                     .checkedCast(communicator.propertyToProxy("DistSorter.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
@@ -27,23 +27,36 @@ public class Sorter {
             // .ice_twoway()
             // .ice_secure(false);
 
-            if (sorterManager == null || distSorter == null) {
+            if (sorterManagerPrx == null || distSorterPrx == null) {
                 throw new Error("Invalid proxy");
             }
 
-            SorterI sorterI = new SorterI();
+            SorterI sorterI = new SorterI(distSorterPrx);
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
             sorterAdapter.add(sorterI, com.zeroc.Ice.Util.stringToIdentity("Sorter"));
             sorterAdapter.activate();
 
-            SorterPrx sorter = SorterPrx.uncheckedCast(sorterAdapter
+            SorterPrx sorterPrx = SorterPrx.uncheckedCast(sorterAdapter
                     .createProxy(com.zeroc.Ice.Util.stringToIdentity("Sorter")));
 
-            System.out.println("\nSORTER STARTED...\n");
+            System.out.println("\nSORTER STARTED...");
 
-            Registry registry = new Registry(sorterManager, distSorter);
-            registry.register(sorter);
+            // Registry registry = new Registry(sorterManager, distSorter);
+            // registry.register(sorter);
+
+            distSorterPrx.attach(sorterPrx);
+            System.out.println("\nAttached...");
+
+            System.out.println("\nThread id 1: "+Thread.currentThread().getId());
+            distSorterPrx.getRunning();
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    distSorterPrx.detach(sorterPrx);
+                    System.out.println("\n\nDetached...\n");
+                }
+            });
 
             communicator.waitForShutdown();
         }

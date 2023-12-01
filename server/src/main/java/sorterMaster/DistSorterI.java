@@ -22,8 +22,10 @@ public class DistSorterI implements Services.DistSorter {
 
     // private ForkJoinMasterI forkJoinMaster;
 
-    Queue<String> tasks = new LinkedList<>();
-    List<String> globalResults = new ArrayList<>();
+    private Queue<String> tasks = new LinkedList<>();
+    private List<String> globalResults = new ArrayList<>();
+    private List<SorterPrx> sorterPool = new ArrayList<>();
+    private boolean running = false;
 
     public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager) {
         this.responseManager = responseManager;
@@ -40,13 +42,14 @@ public class DistSorterI implements Services.DistSorter {
 
             // forkJoinMaster.invoke(task, current);
 
-            int sorterCount = sorterManager.getSorterCount();
+            // int sorterCount = sorterManager.getSorterCount();
+            int sorterCount = sorterPool.size();
             System.out.println("\n- Total Workers: " + sorterCount);
 
             String[] lines = content.split("\n");
             String result = "";
 
-            if (sorterManager.getSorterCount() > 1) {
+            if (sorterCount > 1) {
                 String[] parts = divide(lines, sorterCount);
 
                 // for (String r : parts) {
@@ -85,9 +88,10 @@ public class DistSorterI implements Services.DistSorter {
     }
 
     private void launchWorkers() {
-        for (SorterPrx sorter : sorterManager.getSorters().values()) {
-            // sorter.launch();
-        }
+        System.out.println("\nLaunching workers...");
+        running = true;
+        notifyObservers();
+        System.out.println("\nWorkers launched!");
     }
 
     private String sort(String s) {
@@ -145,18 +149,24 @@ public class DistSorterI implements Services.DistSorter {
 
     @Override
     public void attach(SorterPrx sorterProxy, Current current) {
-        System.out.println("\nWorker attached to Server");
+        System.out.println("\n-> Worker attached to Server...");
+        sorterPool.add(sorterProxy);
     }
 
     @Override
     public void detach(SorterPrx sorterProxy, Current current) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'detach'");
+        System.out.println("\n-> Worker detached from Server...");
+        sorterPool.remove(sorterProxy);
     }
 
     @Override
-    public void _notifyAll(String s, Current current) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method '_notifyAll'");
+    public boolean getRunning(Current current) {
+        return running;
+    }
+
+    public void notifyObservers() {
+        for (SorterPrx sorterPrx : sorterPool) {
+            sorterPrx.update();
+        }
     }
 }

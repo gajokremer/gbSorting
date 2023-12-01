@@ -28,7 +28,7 @@ module Services {
         string distSort(long id, string path);
         void attach(Sorter* sorterProxy);
         void detach(Sorter* sorterProxy);
-        void notifyAll(string s);
+        bool getRunning();
     }
     interface ResponseManager {
         bool respondToClient(long id, string response);
