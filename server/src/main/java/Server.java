@@ -18,8 +18,8 @@ public class Server {
                         ConnectionManagerI connectionManager = new ConnectionManagerI();
                         SorterManagerI sorterManager = new SorterManagerI();
                         ResponseManagerI responseManager = new ResponseManagerI(connectionManager);
-                        DistSorterI distSorter = new DistSorterI(responseManager, sorterManager);
                         ForkJoinMasterI forkJoinMaster = new ForkJoinMasterI();
+                        DistSorterI distSorter = new DistSorterI(responseManager, sorterManager, forkJoinMaster);
 
                         // com.zeroc.Ice.ObjectAdapter sorterAdapter =
                         // communicator.createObjectAdapter("DistSorter");

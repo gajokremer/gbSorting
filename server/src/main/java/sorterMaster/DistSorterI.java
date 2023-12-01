@@ -4,23 +4,28 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.concurrent.ForkJoinTask;
 
 import com.zeroc.Ice.Current;
 
 import Services.SorterPrx;
 import clientManager.ResponseManagerI;
+import sorterPool.ForkJoinMasterI;
+import sorterPool.ForkTask;
 import sorterPool.SorterManagerI;
 
 public class DistSorterI implements Services.DistSorter {
 
     private ResponseManagerI responseManager;
-    // private ConnectionManagerI connectionManager;
     private SorterManagerI sorterManager;
 
-    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager) {
+    private ForkJoinMasterI forkJoinMaster;
+
+    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, ForkJoinMasterI forkJoinMaster) {
         this.responseManager = responseManager;
-        // this.connectionManager = responseManager.getConnectionManager();
         this.sorterManager = sorterManager;
+
+        this.forkJoinMaster = forkJoinMaster;
     }
 
     @Override
@@ -28,6 +33,8 @@ public class DistSorterI implements Services.DistSorter {
         System.out.println("\nFile read request received from Client '" + id + "' -> " + "'" + path + "'");
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
+
+            // forkJoinMaster.invoke(content, current);
 
             System.out.println("\n- Total Workers: " + sorterManager.getSorterCount());
 
@@ -42,9 +49,10 @@ public class DistSorterI implements Services.DistSorter {
                 // System.out.println(r);
                 // }
 
+                // Iterative, should be parallel
                 int i = 0;
                 for (SorterPrx sorter : sorterManager.getSorters().values()) {
-                    result += "\n" + sorter.sort(parts[i]);
+                    result += sorter.sort(parts[i]) + "\n";
                     i++;
                 }
 

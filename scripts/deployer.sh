@@ -7,7 +7,7 @@ sorter_ip2="10.147.19.137"
 sorter_ip3="10.147.19.5"
 
 scp server/build/libs/server.jar swarch@xhgrid5:/home/swarch/gb # 10.147.19.112
-scp client/build/libs/client.jar swarch@xhgrid6:/home/swarch/gb # 10.147.19.230
+# scp client/build/libs/client.jar swarch@xhgrid6:/home/swarch/gb # 10.147.19.230
 scp sorter/build/libs/sorter.jar swarch@xhgrid7:/home/swarch/gb # 10.147.19.139
 # scp sorter/build/libs/sorter.jar swarch@xhgrid8:/home/swarch/gb # 10.147.19.137
 # scp sorter/build/libs/sorter.jar swarch@xhgrid11:/home/swarch/gb # 10.147.19.5

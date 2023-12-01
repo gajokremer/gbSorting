@@ -1,10 +1,16 @@
 package worker;
 
 import com.zeroc.Ice.Current;
-
+import Services.ForkJoinMasterPrx;
 import java.util.Arrays;
 
 public class SorterI implements Services.Sorter {
+
+    ForkJoinMasterPrx master;
+
+    public SorterI(ForkJoinMasterPrx master) {
+        this.master = master;
+    }
 
     @Override
     public String sort(String s, Current current) {

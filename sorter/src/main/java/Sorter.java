@@ -11,28 +11,22 @@ public class Sorter {
 
         try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, "sorter.cfg", extraArgs)) {
 
-            // Services.ResponseManagerPrx reponseManager = Services.ResponseManagerPrx
-            // .checkedCast(communicator.propertyToProxy("ResponseManager.Proxy"))
-            // .ice_twoway()
-            // .ice_secure(false);
-
-            // Services.ConnectionManagerPrx connectionManager =
-            // Services.ConnectionManagerPrx
-            // .checkedCast(communicator.propertyToProxy("ConnectionManager.Proxy"))
-            // .ice_twoway()
-            // .ice_secure(false);
-
             Services.SorterManagerPrx sorterManager = Services.SorterManagerPrx
                     .checkedCast(communicator.propertyToProxy("SorterManager.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (sorterManager == null) {
+            Services.ForkJoinMasterPrx master = Services.ForkJoinMasterPrx
+                    .checkedCast(communicator.propertyToProxy("ForkJoinMaster.Proxy"))
+                    .ice_twoway()
+                    .ice_secure(false);
+
+            if (sorterManager == null || master == null) {
                 throw new Error("Invalid proxy");
             }
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
-            sorterAdapter.add(new SorterI(), com.zeroc.Ice.Util.stringToIdentity("Sorter"));
+            sorterAdapter.add(new SorterI(master), com.zeroc.Ice.Util.stringToIdentity("Sorter"));
             sorterAdapter.activate();
             SorterPrx sorter = SorterPrx.uncheckedCast(sorterAdapter
                     .createProxy(com.zeroc.Ice.Util.stringToIdentity("Sorter")));

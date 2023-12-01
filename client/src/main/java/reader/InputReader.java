@@ -30,7 +30,7 @@ public class InputReader {
             System.out.print("\n-> ");
             String input = sc.nextLine();
 
-            if (input.contains(";")) {
+            if (input.contains(".")) {
                 // String[] parts = input.split(";");
                 // String file = parts[1];
 

@@ -1,6 +1,8 @@
 module Services {
 
     sequence<string> StringArr;
+    //["java:serializable:worker.ForkTask"]
+    //sequence<byte> ForkTaskSeq;
 
     interface DistSorter;
     interface ResponseManager;
@@ -12,9 +14,9 @@ module Services {
     interface SorterManager;
     interface ForkJoinMaster;
 
-    //class ForkJoinTask {
-    //    string str;
-    //}
+    interface ForkJoinTaskInterface {
+        void compute();
+    }
 
     // Server
 
@@ -42,7 +44,7 @@ module Services {
         void notifyAll(string s);
     }
     interface ForkJoinMaster {
-        void invoke();
+        void invoke(string s);
     }
 
     // Client
@@ -59,5 +61,6 @@ module Services {
 
     interface Sorter {
         string sort(string s);
+        //void execute(ForkJoinTaskInterface* task);
     }
 }
