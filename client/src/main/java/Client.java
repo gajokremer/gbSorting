@@ -45,10 +45,10 @@ public class Client {
                         responseReceiverAdapter.add(new ResponseReceiverI(),
                                         com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver"));
                         responseReceiverAdapter.activate();
+
                         Services.ResponseReceiverPrx receiver = Services.ResponseReceiverPrx
-                                        .uncheckedCast(responseReceiverAdapter
-                                                        .createProxy(com.zeroc.Ice.Util
-                                                                        .stringToIdentity("ResponseReceiver")));
+                                        .uncheckedCast(responseReceiverAdapter.createProxy(
+                                                        com.zeroc.Ice.Util.stringToIdentity("ResponseReceiver")));
 
                         System.out.println("\nCLIENT STARTED...");
 
@@ -58,6 +58,8 @@ public class Client {
 
                         InputReader inputReader = new InputReader();
                         inputReader.askForInput(distSorter, connectionManager, responseManager, receiver);
+
+                        communicator.waitForShutdown();
                 }
         }
 

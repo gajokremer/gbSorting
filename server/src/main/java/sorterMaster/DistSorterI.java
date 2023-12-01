@@ -3,7 +3,12 @@ package sorterMaster;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 import com.zeroc.Ice.Current;
 
 import Services.SorterPrx;
@@ -16,6 +21,9 @@ public class DistSorterI implements Services.DistSorter {
     private SorterManagerI sorterManager;
 
     // private ForkJoinMasterI forkJoinMaster;
+
+    Queue<String> tasks = new LinkedList<>();
+    List<String> globalResults = new ArrayList<>();
 
     public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager) {
         this.responseManager = responseManager;
@@ -32,13 +40,14 @@ public class DistSorterI implements Services.DistSorter {
 
             // forkJoinMaster.invoke(task, current);
 
-            System.out.println("\n- Total Workers: " + sorterManager.getSorterCount());
+            int sorterCount = sorterManager.getSorterCount();
+            System.out.println("\n- Total Workers: " + sorterCount);
 
             String[] lines = content.split("\n");
             String result = "";
 
             if (sorterManager.getSorterCount() > 1) {
-                String[] parts = divide(lines, sorterManager.getSorterCount());
+                String[] parts = divide(lines, sorterCount);
 
                 // for (String r : parts) {
                 // System.out.println("\n- Length: " + partLength(r));
@@ -46,11 +55,17 @@ public class DistSorterI implements Services.DistSorter {
                 // }
 
                 // Iterative, should be parallel
-                int i = 0;
-                for (SorterPrx sorter : sorterManager.getSorters().values()) {
-                    result += sorter.sort(parts[i]) + "\n";
-                    i++;
+                // int i = 0;
+                // for (SorterPrx sorter : sorterManager.getSorters().values()) {
+                // result += sorter.sort(parts[i]) + "\n";
+                // i++;
+                // }
+
+                for (int i = 0; i < parts.length; i++) {
+                    tasks.add(parts[i]);
                 }
+
+                launchWorkers();
 
                 result = sort(result);
 
@@ -66,6 +81,12 @@ public class DistSorterI implements Services.DistSorter {
 
         } catch (IOException e) {
             return "Error reading or sorting the file: " + e.getMessage();
+        }
+    }
+
+    private void launchWorkers() {
+        for (SorterPrx sorter : sorterManager.getSorters().values()) {
+            // sorter.launch();
         }
     }
 
@@ -87,7 +108,7 @@ public class DistSorterI implements Services.DistSorter {
         return result;
     }
 
-    private static String[] divide(String[] lines, int parts) {
+    private String[] divide(String[] lines, int parts) {
 
         // if (lines == null || lines.length == 0 || parts <= 0) {
         // return new String[] { "" };
@@ -120,5 +141,22 @@ public class DistSorterI implements Services.DistSorter {
     private int partLength(String part) {
         String[] lines = part.split("\n");
         return lines.length;
+    }
+
+    @Override
+    public void attach(SorterPrx sorterProxy, Current current) {
+        System.out.println("\nWorker attached to Server");
+    }
+
+    @Override
+    public void detach(SorterPrx sorterProxy, Current current) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'detach'");
+    }
+
+    @Override
+    public void _notifyAll(String s, Current current) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method '_notifyAll'");
     }
 }

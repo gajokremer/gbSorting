@@ -4,18 +4,28 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import Services.DistSorterPrx;
 import Services.SorterManagerPrx;
 import Services.SorterPrx;
 
 public class Registry {
 
-    Scanner sc = new Scanner(System.in);
+    private Scanner sc = new Scanner(System.in);
+    private SorterManagerPrx sorterManager;
+    private DistSorterPrx distSorter;
 
-    public void register(SorterManagerPrx sorterManager, SorterPrx sorter) {
+    public Registry(SorterManagerPrx sorterManager, DistSorterPrx distSorter) {
+        this.sorterManager = sorterManager;
+        this.distSorter = distSorter;
+    }
+
+    public void register(SorterPrx sorterPrx) {
         String hostname = getHostname();
         // long sorterId = connectionManager.registerSorter(hostname, receiver, sorter);
-        long sorterId = sorterManager.registerSorter(hostname, sorter);
+        long sorterId = sorterManager.registerSorter(hostname, sorterPrx);
         System.out.println("-> Sorter Id: " + sorterId + "\n");
+
+        distSorter.attach(sorterPrx);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {

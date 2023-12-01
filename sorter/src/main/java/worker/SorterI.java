@@ -2,18 +2,36 @@ package worker;
 
 import com.zeroc.Ice.Current;
 
-import Services.ForkJoinMasterPrx;
+import Services.DistSorterPrx;
+import Services.SorterPrx;
+
 import java.util.Arrays;
 
 public class SorterI implements Services.Sorter {
 
-    ForkJoinMasterPrx master;
+    // ForkJoinMasterPrx master;
 
-    public SorterI(ForkJoinMasterPrx master) {
-        this.master = master;
-    }
+    // public SorterI(ForkJoinMasterPrx master) {
+    // this.master = master;
+    // }
+
+    // private DistSorterPrx distSorter;
+    // private SorterPrx sorterPrx;
+
+    // public SorterI(DistSorterPrx distSorter) {
+    //     this.distSorter = distSorter;
+    // }
+
+    // public void setSorterPrx(SorterPrx sorterPrx) {
+    //     this.sorterPrx = sorterPrx;
+    // }
 
     @Override
+    public void update(Current current) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    }
+
     public String sort(String s, Current current) {
         // System.out.println("\nFile content received from Server -> \n");
         // System.out.println(s);

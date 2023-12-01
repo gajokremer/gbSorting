@@ -26,6 +26,9 @@ module Services {
 
     interface DistSorter {
         string distSort(long id, string path);
+        void attach(Sorter* sorterProxy);
+        void detach(Sorter* sorterProxy);
+        void notifyAll(string s);
     }
     interface ResponseManager {
         bool respondToClient(long id, string response);
@@ -38,11 +41,11 @@ module Services {
         long registerSorter(string hostname, Sorter* sorterProxy);
         void removeSorter(long id);
     }
-    interface Subject {
-        void attach(Observer* observer);
-        void detach(Observer* observer);
-        void notifyAll(string s);
-    }
+    //interface Subject {
+    //    void attach(Observer* observer);
+    //    void detach(Observer* observer);
+    //    void notifyAll(string s);
+    //}
     interface ForkJoinMaster {
         //void invoke(ForkJoinTaskClass task);
         void invoke(ForkJoinTaskInterface* task);
@@ -53,15 +56,15 @@ module Services {
     interface ResponseReceiver {
         void receiveResponse(string s);
     }
-    interface Observer {
-        void update();
-    }
+    //interface Observer {
+    //    void update();
+    //}
 
     // Sorter
 
     interface Sorter {
-        string sort(string s);
-        //void executeTask(ForkJoinTaskInterface* task);
-        //void executeTask(ForkJoinTaskClass task);
+        //string sort(string s);
+        //void launch();
+        void update();
     }
 }

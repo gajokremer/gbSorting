@@ -3,7 +3,6 @@ import java.util.List;
 
 import clientManager.ConnectionManagerI;
 import clientManager.ResponseManagerI;
-import forkJoinMaster.ForkJoinMasterI;
 import sorterMaster.DistSorterI;
 import sorterPool.SorterManagerI;
 
@@ -44,13 +43,14 @@ public class Server {
                         // sorterManagerAdapter.add(sorterManager,
                         // com.zeroc.Ice.Util.stringToIdentity("SorterManager"));
 
-                        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Server");
-                        adapter.add(distSorter, com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
-                        adapter.add(responseManager, com.zeroc.Ice.Util.stringToIdentity("ResponseManager"));
-                        adapter.add(connectionManager, com.zeroc.Ice.Util.stringToIdentity("ConnectionManager"));
-                        adapter.add(sorterManager, com.zeroc.Ice.Util.stringToIdentity("SorterManager"));
-                        // adapter.add(forkJoinMaster, com.zeroc.Ice.Util.stringToIdentity("ForkJoinMaster"));
-                        adapter.activate();
+                        com.zeroc.Ice.ObjectAdapter serverAdapter = communicator.createObjectAdapter("Server");
+                        serverAdapter.add(distSorter, com.zeroc.Ice.Util.stringToIdentity("DistSorter"));
+                        serverAdapter.add(responseManager, com.zeroc.Ice.Util.stringToIdentity("ResponseManager"));
+                        serverAdapter.add(connectionManager, com.zeroc.Ice.Util.stringToIdentity("ConnectionManager"));
+                        serverAdapter.add(sorterManager, com.zeroc.Ice.Util.stringToIdentity("SorterManager"));
+                        // adapter.add(forkJoinMaster,
+                        // com.zeroc.Ice.Util.stringToIdentity("ForkJoinMaster"));
+                        serverAdapter.activate();
 
                         System.out.println("\nSERVER STARTED...");
 
