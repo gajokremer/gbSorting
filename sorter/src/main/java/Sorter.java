@@ -16,17 +16,17 @@ public class Sorter {
                     .ice_twoway()
                     .ice_secure(false);
 
-            Services.ForkJoinMasterPrx master = Services.ForkJoinMasterPrx
+            Services.ForkJoinMasterPrx forkJoinMaster = Services.ForkJoinMasterPrx
                     .checkedCast(communicator.propertyToProxy("ForkJoinMaster.Proxy"))
                     .ice_twoway()
                     .ice_secure(false);
 
-            if (sorterManager == null || master == null) {
+            if (sorterManager == null || forkJoinMaster == null) {
                 throw new Error("Invalid proxy");
             }
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
-            sorterAdapter.add(new SorterI(master), com.zeroc.Ice.Util.stringToIdentity("Sorter"));
+            sorterAdapter.add(new SorterI(forkJoinMaster), com.zeroc.Ice.Util.stringToIdentity("Sorter"));
             sorterAdapter.activate();
             SorterPrx sorter = SorterPrx.uncheckedCast(sorterAdapter
                     .createProxy(com.zeroc.Ice.Util.stringToIdentity("Sorter")));

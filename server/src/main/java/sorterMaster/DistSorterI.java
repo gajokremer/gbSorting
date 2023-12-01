@@ -4,14 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.concurrent.ForkJoinTask;
-
 import com.zeroc.Ice.Current;
 
 import Services.SorterPrx;
 import clientManager.ResponseManagerI;
-import sorterPool.ForkJoinMasterI;
-import sorterPool.ForkTask;
 import sorterPool.SorterManagerI;
 
 public class DistSorterI implements Services.DistSorter {
@@ -19,13 +15,13 @@ public class DistSorterI implements Services.DistSorter {
     private ResponseManagerI responseManager;
     private SorterManagerI sorterManager;
 
-    private ForkJoinMasterI forkJoinMaster;
+    // private ForkJoinMasterI forkJoinMaster;
 
-    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, ForkJoinMasterI forkJoinMaster) {
+    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager) {
         this.responseManager = responseManager;
         this.sorterManager = sorterManager;
 
-        this.forkJoinMaster = forkJoinMaster;
+        // this.forkJoinMaster = forkJoinMaster;
     }
 
     @Override
@@ -34,7 +30,7 @@ public class DistSorterI implements Services.DistSorter {
         try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
 
-            // forkJoinMaster.invoke(content, current);
+            // forkJoinMaster.invoke(task, current);
 
             System.out.println("\n- Total Workers: " + sorterManager.getSorterCount());
 

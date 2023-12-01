@@ -1,4 +1,4 @@
-package sorterPool;
+package forkJoinMaster;
 
 import com.zeroc.Ice.Current;
 
@@ -9,8 +9,20 @@ public class ForkTask implements Services.ForkJoinTaskInterface {
     private final int THRESHOLD = 1000;
     private ForkJoinMasterPrx master;
 
-    ForkTask(ForkJoinMasterPrx master, String s) {
+    // public ForkTask(ForkJoinMasterPrx master, String s) {
+    // this.master = master;
+    // }
+
+    public ForkJoinMasterPrx getMaster() {
+        return master;
+    }
+
+    public void setMaster(ForkJoinMasterPrx master) {
         this.master = master;
+    }
+
+    public ForkTask(String s) {
+
     }
 
     @Override
