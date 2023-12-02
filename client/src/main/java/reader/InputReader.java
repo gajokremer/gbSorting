@@ -11,17 +11,17 @@ public class InputReader {
 
     private Scanner sc = new java.util.Scanner(System.in);
 
-    public void askForInput(DistSorterPrx sorter, ConnectionManagerPrx connectionManager,
+    public void askForInput(DistSorterPrx distSorterPrx, ConnectionManagerPrx connectionManagerPrx,
             ResponseManagerPrx responseManager, ResponseReceiverPrx receiver) {
 
         String hostname = getHostname();
         // long clientId = manager.registerClient(hostname, receiver);
-        long clientId = connectionManager.registerClient(hostname, receiver);
+        long clientId = connectionManagerPrx.registerClient(hostname, receiver);
         System.out.println("\n-> Client Id: " + clientId + "\n");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                connectionManager.removeClient(clientId);
+                connectionManagerPrx.removeClient(clientId);
                 System.out.println("\n\nDisconnecting Client '" + clientId + "' from server...\n");
             }
         });
@@ -42,7 +42,7 @@ public class InputReader {
 
                 long startTime = System.currentTimeMillis();
 
-                String result = sorter.distSort(clientId, path);
+                String result = distSorterPrx.distSort(clientId, path);
                 System.out.println("\n" + result + "\n");
 
                 long endTime = System.currentTimeMillis();
@@ -51,7 +51,7 @@ public class InputReader {
             }
 
             if (input.equals("exit")) {
-                connectionManager.removeClient(clientId);
+                connectionManagerPrx.removeClient(clientId);
                 System.out.println("\nDisconnecting Client '" + clientId + "' from server...\n");
                 break;
             }

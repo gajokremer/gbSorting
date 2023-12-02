@@ -4,6 +4,7 @@ import java.util.List;
 import clientManager.ConnectionManagerI;
 import clientManager.ResponseManagerI;
 import sorterMaster.DistSorterI;
+import sorterMaster.SubjectI;
 import sorterPool.SorterManagerI;
 
 public class Server {
@@ -18,7 +19,8 @@ public class Server {
                         SorterManagerI sorterManager = new SorterManagerI();
                         ResponseManagerI responseManager = new ResponseManagerI(connectionManager);
                         // ForkJoinMasterI forkJoinMaster = new ForkJoinMasterI(sorterManager);
-                        DistSorterI distSorter = new DistSorterI(responseManager, sorterManager);
+                        SubjectI subjectI = new SubjectI();
+                        DistSorterI distSorter = new DistSorterI(responseManager, sorterManager, subjectI);
 
                         // com.zeroc.Ice.ObjectAdapter sorterAdapter =
                         // communicator.createObjectAdapter("DistSorter");
@@ -50,6 +52,7 @@ public class Server {
                         serverAdapter.add(sorterManager, com.zeroc.Ice.Util.stringToIdentity("SorterManager"));
                         // adapter.add(forkJoinMaster,
                         // com.zeroc.Ice.Util.stringToIdentity("ForkJoinMaster"));
+                        serverAdapter.add(subjectI, com.zeroc.Ice.Util.stringToIdentity("Subject"));
                         serverAdapter.activate();
 
                         System.out.println("\nSERVER STARTED...");

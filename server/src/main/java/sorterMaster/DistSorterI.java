@@ -11,6 +11,7 @@ import java.util.Queue;
 
 import com.zeroc.Ice.Current;
 
+import Services.ObserverPrx;
 import Services.SorterPrx;
 import clientManager.ResponseManagerI;
 import sorterPool.SorterManagerI;
@@ -20,16 +21,19 @@ public class DistSorterI implements Services.DistSorter {
     private ResponseManagerI responseManager;
     private SorterManagerI sorterManager;
 
+    private SubjectI subjectI;
+
     // private ForkJoinMasterI forkJoinMaster;
 
     private Queue<String> tasks = new LinkedList<>();
     private List<String> globalResults = new ArrayList<>();
     private List<SorterPrx> sorterPool = new ArrayList<>();
-    private boolean running = false;
 
-    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager) {
+    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, SubjectI subjectI) {
         this.responseManager = responseManager;
         this.sorterManager = sorterManager;
+
+        this.subjectI = subjectI;
 
         // this.forkJoinMaster = forkJoinMaster;
     }
@@ -43,7 +47,8 @@ public class DistSorterI implements Services.DistSorter {
             // forkJoinMaster.invoke(task, current);
 
             // int sorterCount = sorterManager.getSorterCount();
-            int sorterCount = sorterPool.size();
+            // int sorterCount = sorterPool.size();
+            int sorterCount = subjectI.getObservers().size();
             System.out.println("\n- Total Workers: " + sorterCount);
 
             String[] lines = content.split("\n");
@@ -70,6 +75,11 @@ public class DistSorterI implements Services.DistSorter {
 
                 launchWorkers();
 
+                // distrubute the task queue to the observers
+                for (ObserverPrx observer : subjectI.getObservers()) {
+                    observer.receiveTask(tasks.remove());
+                }
+
                 result = sort(result);
 
             } else {
@@ -89,8 +99,9 @@ public class DistSorterI implements Services.DistSorter {
 
     private void launchWorkers() {
         System.out.println("\nLaunching workers...");
-        running = true;
-        notifyObservers();
+        // notifyObservers();
+        subjectI.setRunning(true);
+        subjectI._notifyAll();
         System.out.println("\nWorkers launched!");
     }
 
@@ -147,26 +158,26 @@ public class DistSorterI implements Services.DistSorter {
         return lines.length;
     }
 
-    @Override
-    public void attach(SorterPrx sorterProxy, Current current) {
-        System.out.println("\n-> Worker attached to Server...");
-        sorterPool.add(sorterProxy);
-    }
+    // @Override
+    // public void attach(SorterPrx sorterProxy, Current current) {
+    // System.out.println("\n-> Worker attached to Server...");
+    // sorterPool.add(sorterProxy);
+    // }
 
-    @Override
-    public void detach(SorterPrx sorterProxy, Current current) {
-        System.out.println("\n-> Worker detached from Server...");
-        sorterPool.remove(sorterProxy);
-    }
+    // @Override
+    // public void detach(SorterPrx sorterProxy, Current current) {
+    // System.out.println("\n-> Worker detached from Server...");
+    // sorterPool.remove(sorterProxy);
+    // }
 
-    @Override
-    public boolean getRunning(Current current) {
-        return running;
-    }
+    // @Override
+    // public boolean getRunning(Current current) {
+    // return running;
+    // }
 
-    public void notifyObservers() {
-        for (SorterPrx sorterPrx : sorterPool) {
-            sorterPrx.update();
-        }
-    }
+    // public void notifyObservers() {
+    // for (SorterPrx sorterPrx : sorterPool) {
+    // sorterPrx.update();
+    // }
+    // }
 }

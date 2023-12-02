@@ -2,11 +2,9 @@ package worker;
 
 import com.zeroc.Ice.Current;
 
-import Services.DistSorterPrx;
-
 import java.util.Arrays;
 
-public class SorterI implements Services.Sorter {
+public class SorterI {
 
     // ForkJoinMasterPrx master;
 
@@ -14,30 +12,54 @@ public class SorterI implements Services.Sorter {
     // this.master = master;
     // }
 
-    @Override
-    public void update(Current current) {
-        System.out.println("\nSorter updated!");
+    private boolean running = false;
+
+    public boolean isRunning() {
+        return running;
     }
 
-    public String sort(String s, Current current) {
-        // System.out.println("\nFile content received from Server -> \n");
-        // System.out.println(s);
+    public void setRunning(boolean running) {
+        this.running = running;
+        System.out.println("\nSorter running?: " + running);
+    }
 
-        System.out.println("\nFile content received from Server");
-        System.out.println("\nSorting file content...\n");
+    // @Override
+    // public void update(Current current) {
+    // System.out.println("\nSorter updated!");
+    // }
 
-        String[] lines = s.split("\n");
+    public String sort(String s) {
 
-        // Sort the array of lines alphabetically
-        Arrays.sort(lines);
+        String result = "";
 
-        // Join the sorted lines into a single string with newline separation
-        String result = String.join("\n", lines);
+        if (running) {
 
-        // Write the sorted result to the output.txt file
-        // writeToFile(result);
+            // System.out.println("\nFile content received from Server -> \n");
+            // System.out.println(s);
 
-        // return "Result processed successfully!";
+            System.out.println("\nFile content received from Server");
+            System.out.println("\nSorting file content...\n");
+
+            String[] lines = s.split("\n");
+
+            // Sort the array of lines alphabetically
+            Arrays.sort(lines);
+
+            // Join the sorted lines into a single string with newline separation
+            result = String.join("\n", lines);
+
+            // Write the sorted result to the output.txt file
+            // writeToFile(result);
+
+            // return "Result processed successfully!";
+        }
+        
         return result;
     }
+
+    // public void requestTask() {
+    // System.out.println("\nSorter thread: " + Thread.currentThread().getId());
+    // System.out.println("\nRequesting task");
+    // // runner(distSorterProxy);
+    // }
 }
