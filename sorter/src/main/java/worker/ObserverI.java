@@ -13,15 +13,14 @@ public class ObserverI implements Services.Observer {
     @Override
     public void update(boolean running, Current current) {
         System.out.println("\nUpdated...");
-        System.out.println("Observer thread: " + Thread.currentThread().getId());
+        // System.out.println("Observer thread: " + Thread.currentThread().getId());
         sorterI.setRunning(running);
-        // sorterI.requestTask();
     }
 
-    @Override
-    public void receiveTask(String task, Current current) {
-        System.out.println("\nTask received from Server -> \n");
-        System.out.println(task);
-        sorterI.sort(task);
-    }
+    // @Override
+    // public String receiveTask(String task, Current current) {
+    // System.out.println("\nTask received from Server -> \n");
+    // System.out.println(task);
+    // return sorterI.sort(task);
+    // }
 }

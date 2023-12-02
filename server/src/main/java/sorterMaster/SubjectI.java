@@ -1,19 +1,31 @@
 package sorterMaster;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.zeroc.Ice.Current;
 
 import Services.ObserverPrx;
+import Services.SorterPrx;
 
 public class SubjectI implements Services.Subject {
 
-    private List<ObserverPrx> observers = new ArrayList<>();
+    private Map<Long, ObserverPrx> observerProxies = new HashMap<>();
+    private Map<Long, SorterPrx> sorterProxies = new HashMap<>();
+    private int workerCount = 0;
+
     private boolean running = false;
 
-    public List<ObserverPrx> getObservers() {
-        return observers;
+    // public Map<Long, ObserverPrx> getObserverProxies() {
+    // return observerProxies;
+    // }
+
+    public Map<Long, SorterPrx> getSorterProxies() {
+        return sorterProxies;
+    }
+
+    public int getWorkerCount() {
+        return workerCount;
     }
 
     public boolean isRunning() {
@@ -25,26 +37,41 @@ public class SubjectI implements Services.Subject {
     }
 
     @Override
-    public void attach(ObserverPrx observerProxy, Current current) {
-        observers.add(observerProxy);
-
-        System.out.println("\nAttached...");
-    }
-
-    @Override
-    public void detach(ObserverPrx observer, Current current) {
-        observers.remove(observer);
-        System.out.println("\nDetached...");
-    }
-
-    @Override
     public boolean getRunning(Current current) {
         return running;
     }
 
+    @Override
+    public long attach(ObserverPrx observerProxy, SorterPrx sorterProxy, Current current) {
+        long id = workerCount++;
+        synchronized (this) {
+            add(id, observerProxy, sorterProxy);
+        }
+        System.out.println("\nAttached...");
+        return id;
+    }
+
+    @Override
+    public void detach(long id, Current current) {
+        synchronized (this) {
+            remove(id);
+        }
+        System.out.println("\nDetached...");
+    }
+
     public void _notifyAll() {
-        for (ObserverPrx observerPrx : observers) {
+        for (ObserverPrx observerPrx : observerProxies.values()) {
             observerPrx.update(running);
         }
+    }
+
+    private synchronized void add(long id, ObserverPrx observerProxy, SorterPrx sorterProxy) {
+        observerProxies.put(id, observerProxy);
+        sorterProxies.put(id, sorterProxy);
+    }
+
+    private synchronized void remove(long id) {
+        sorterProxies.remove(id);
+        observerProxies.remove(id);
     }
 }

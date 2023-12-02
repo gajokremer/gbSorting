@@ -42,8 +42,8 @@ module Services {
         void removeSorter(long id);
     }
     interface Subject {
-        void attach(Observer* observerProxy);
-        void detach(Observer* observerProxy);
+        long attach(Observer* observerProxy, Sorter* sorterProxy);
+        void detach(long id);
         //void notifyAll(string s);
         bool getRunning();
     }
@@ -59,14 +59,13 @@ module Services {
     }
     interface Observer {
         void update(bool running);
-        void receiveTask(string task);
+        //string receiveTask(string task);
     }
 
     // Sorter
 
     interface Sorter {
         //string sort(string s);
-        //void launch();
-        //void update();
+        string receiveTask(string content);
     }
 }

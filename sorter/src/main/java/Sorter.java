@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Services.ObserverPrx;
+import Services.SorterPrx;
 import worker.ObserverI;
 import worker.SorterI;
 
@@ -36,16 +37,18 @@ public class Sorter {
                 throw new Error("Invalid proxy");
             }
 
-            SorterI sorterI = new SorterI();
+            // int threadPoolSize = Integer.parseInt(communicator.getProperties().getProperty("Sorter.ThreadPoolSize"));
+            int threadPoolSize = 10;
+            SorterI sorterI = new SorterI(threadPoolSize);
             ObserverI observerI = new ObserverI(sorterI);
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
-            // sorterAdapter.add(sorterI, com.zeroc.Ice.Util.stringToIdentity("Sorter"));
+            sorterAdapter.add(sorterI, com.zeroc.Ice.Util.stringToIdentity("Sorter"));
             sorterAdapter.add(observerI, com.zeroc.Ice.Util.stringToIdentity("Observer"));
             sorterAdapter.activate();
 
-            // SorterPrx sorterPrx = SorterPrx.uncheckedCast(sorterAdapter
-            // .createProxy(com.zeroc.Ice.Util.stringToIdentity("Sorter")));
+            SorterPrx sorterProxy = SorterPrx.uncheckedCast(sorterAdapter
+                    .createProxy(com.zeroc.Ice.Util.stringToIdentity("Sorter")));
 
             ObserverPrx observerProxy = ObserverPrx.uncheckedCast(sorterAdapter
                     .createProxy(com.zeroc.Ice.Util.stringToIdentity("Observer")));
@@ -55,7 +58,7 @@ public class Sorter {
             // Registry registry = new Registry(sorterManager, distSorter);
             // registry.register(sorter);
 
-            subjectProxy.attach(observerProxy);
+            long id = subjectProxy.attach(observerProxy, sorterProxy);
             // distSorterPrx.attach(sorterPrx);
             System.out.println("\nAttached...");
 
@@ -65,7 +68,7 @@ public class Sorter {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     // distSorterPrx.detach(sorterPrx);
-                    subjectProxy.detach(observerProxy);
+                    subjectProxy.detach(id);
                     System.out.println("\n\nDetached...\n");
                 }
             });

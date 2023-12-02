@@ -3,8 +3,10 @@ package worker;
 import com.zeroc.Ice.Current;
 
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class SorterI {
+public class SorterI implements Services.Sorter {
 
     // ForkJoinMasterPrx master;
 
@@ -12,7 +14,13 @@ public class SorterI {
     // this.master = master;
     // }
 
+    private ExecutorService threadPool;
+
     private boolean running = false;
+
+    public SorterI(int threadPoolSize) {
+        this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
+    }
 
     public boolean isRunning() {
         return running;
@@ -28,7 +36,14 @@ public class SorterI {
     // System.out.println("\nSorter updated!");
     // }
 
-    public String sort(String s) {
+    @Override
+    public String receiveTask(String content, Current current) {
+        System.out.println("\nFile content received from Server -> \n");
+        // System.out.println(content);
+        return sort(content);
+    }
+
+    private String sort(String s) {
 
         String result = "";
 
@@ -53,13 +68,7 @@ public class SorterI {
 
             // return "Result processed successfully!";
         }
-        
+
         return result;
     }
-
-    // public void requestTask() {
-    // System.out.println("\nSorter thread: " + Thread.currentThread().getId());
-    // System.out.println("\nRequesting task");
-    // // runner(distSorterProxy);
-    // }
 }
