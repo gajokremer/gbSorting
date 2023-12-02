@@ -1,8 +1,7 @@
 module Services {
 
     sequence<string> StringArr;
-    //["java:serializable:worker.ForkTask"]
-    //sequence<byte> ForkTaskSeq;
+    sequence<int> IntArr;
 
     interface DistSorter;
     interface ResponseManager;
@@ -66,6 +65,7 @@ module Services {
 
     interface Sorter {
         //string sort(string s);
-        string receiveTask(string content);
+       //string receiveTask(string content);
+        void receiveTaskRange(string path, int start, int end);
     }
 }

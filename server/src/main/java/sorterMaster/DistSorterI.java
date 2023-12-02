@@ -1,8 +1,8 @@
 package sorterMaster;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -11,7 +11,6 @@ import java.util.Queue;
 
 import com.zeroc.Ice.Current;
 
-import Services.SorterPrx;
 import clientManager.ResponseManagerI;
 import sorterPool.SorterManagerI;
 
@@ -22,8 +21,6 @@ public class DistSorterI implements Services.DistSorter {
 
     private SubjectI subjectI;
 
-    // private ForkJoinMasterI forkJoinMaster;
-
     private Queue<String> tasks = new LinkedList<>();
     private List<String> globalResults = new ArrayList<>();
 
@@ -33,67 +30,190 @@ public class DistSorterI implements Services.DistSorter {
 
         this.subjectI = subjectI;
 
-        // this.forkJoinMaster = forkJoinMaster;
+    }
+
+    private static String readAndGetString(String filePath) {
+        StringBuilder contentBuilder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            int lineCount = 0; // Counter to track the number of lines
+
+            while ((line = reader.readLine()) != null) {
+                // Process each line as needed
+                contentBuilder.append(line).append(System.lineSeparator());
+
+                // Print each line locally
+                System.out.println(line);
+
+                // Increment the line counter
+                lineCount++;
+            }
+
+            // Print the total number of lines locally
+            System.out.println("Total lines in the file: " + lineCount);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return contentBuilder.toString();
+    }
+
+    private static int countFileLines(String filePath) {
+        int lineCount = 0; // Counter to track the number of lines
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            while (reader.readLine() != null) {
+                // Increment the line counter
+                lineCount++;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return lineCount;
+    }
+
+    private static int[][] calculateRanges(int totalLines, int parts) {
+        if (totalLines <= 0 || parts <= 0) {
+            throw new IllegalArgumentException("Total lines and parts must be positive integers.");
+        }
+
+        int partLength = totalLines / parts;
+        int remainder = totalLines % parts;
+
+        int[][] result = new int[parts][2];
+        int startIdx = 0;
+
+        for (int i = 0; i < parts; i++) {
+            int endIdx = startIdx + partLength + (i < remainder ? 1 : 0);
+            result[i][0] = startIdx;
+            result[i][1] = endIdx - 1;
+            startIdx = endIdx;
+        }
+
+        return result;
     }
 
     @Override
     public String distSort(long id, String path, Current current) {
         System.out.println("\nFile read request received from Client '" + id + "' -> " + "'" + path + "'");
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(path)));
 
-            // forkJoinMaster.invoke(task, current);
+        int totalLines = countFileLines(path);
+        int workerCount = subjectI.getWorkerCount();
+        // int sorterCount = 3;
 
-            // int sorterCount = sorterManager.getSorterCount();
-            // int sorterCount = sorterPool.size();
-            int sorterCount = subjectI.getWorkerCount();
-            System.out.println("\n- Total Workers: " + sorterCount);
+        if (workerCount > 1) {
+            int[][] ranges = calculateRanges(totalLines, workerCount);
 
-            String[] lines = content.split("\n");
-            String result = "";
-
-            if (sorterCount > 1) {
-                String[] parts = divide(lines, sorterCount);
-
-                // for (String r : parts) {
-                // System.out.println("\n- Length: " + partLength(r));
-                // System.out.println(r);
-                // }
-
-                // Iterative, should be parallel
-                // int i = 0;
-                // for (SorterPrx sorter : sorterManager.getSorters().values()) {
-                // result += sorter.sort(parts[i]) + "\n";
-                // i++;
-                // }
-
-                for (int i = 0; i < parts.length; i++) {
-                    tasks.add(parts[i]);
-                }
-
-                launchWorkers();
-
-                // distrubute the task queue to the observers
-                for (SorterPrx sorterProxy : subjectI.getSorterProxies().values()) {
-                    sorterProxy.receiveTask(tasks.remove());
-                }
-
-                result = sort(result);
-
-                shutDownWorkers();
-
-            } else {
-                result = sort(content);
+            for (int[] range : ranges) {
+                tasks.add(range[0] + ";" + range[1]);
             }
 
-            // result = sort(result);
+            // for (String task : tasks) {
+            // System.out.println("\nTask: " + task);
+            // }
 
-            responseManager.respondToClient(id, result, current);
+            System.out.println("\nInitial tasks: " + tasks.size());
 
-            return "SERVER -> Result processed successfully!";
+            launchWorkers();
+
+            for (Services.SorterPrx sorterProxy : subjectI.getSorterProxies().values()) {
+                String task = tasks.remove();
+                int start = Integer.parseInt(task.split(";")[0]);
+                int end = Integer.parseInt(task.split(";")[1]);
+                sorterProxy.receiveTaskRange(path, start, end);
+            }
+
+            shutDownWorkers();
+
+            System.out.println("\nRemaining tasks: " + tasks.size());
+        }
+
+        return "SERVER -> Result processed successfully!";
+    }
+
+    // @Override
+    // public String distSort(long id, String path, Current current) {
+
+    // try {
+    // String content = new String(Files.readAllBytes(Paths.get(path)));
+
+    // // forkJoinMaster.invoke(task, current);
+
+    // // int sorterCount = sorterManager.getSorterCount();
+    // // int sorterCount = sorterPool.size();
+    // int sorterCount = subjectI.getWorkerCount();
+    // System.out.println("\n- Total Workers: " + sorterCount);
+
+    // String[] lines = content.split("\n");
+    // String result = "";
+
+    // if (sorterCount > 1) {
+    // String[] parts = divide(lines, sorterCount);
+
+    // // for (String r : parts) {
+    // // System.out.println("\n- Length: " + partLength(r));
+    // // System.out.println(r);
+    // // }
+
+    // // Iterative, should be parallel
+    // // int i = 0;
+    // // for (SorterPrx sorter : sorterManager.getSorters().values()) {
+    // // result += sorter.sort(parts[i]) + "\n";
+    // // i++;
+    // // }
+
+    // for (int i = 0; i < parts.length; i++) {
+    // tasks.add(parts[i]);
+    // }
+
+    // launchWorkers();
+
+    // // distrubute the task queue to the observers
+    // for (SorterPrx sorterProxy : subjectI.getSorterProxies().values()) {
+    // sorterProxy.receiveTask(tasks.remove());
+    // }
+
+    // result = sort(result);
+
+    // shutDownWorkers();
+
+    // } else {
+    // result = sort(content);
+    // }
+
+    // // result = sort(result);
+
+    // responseManager.respondToClient(id, result, current);
+
+    // return "SERVER -> Result processed successfully!";
+
+    // } catch (IOException e) {
+    // return "Error reading or sorting the file: " + e.getMessage();
+    // }
+    // }
+
+    private void readAndPrintFile(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            int lineCount = 0; // Counter to track the number of lines
+
+            while ((line = reader.readLine()) != null) {
+                // Process each line as needed
+                System.out.println(line);
+
+                // Increment the line counter
+                lineCount++;
+            }
+
+            // Print the total number of lines
+            System.out.println("Total lines in the file: " + lineCount);
 
         } catch (IOException e) {
-            return "Error reading or sorting the file: " + e.getMessage();
+            e.printStackTrace();
         }
     }
 
@@ -161,8 +281,8 @@ public class DistSorterI implements Services.DistSorter {
         return result;
     }
 
-    private int partLength(String part) {
-        String[] lines = part.split("\n");
-        return lines.length;
-    }
+    // private int partLength(String part) {
+    // String[] lines = part.split("\n");
+    // return lines.length;
+    // }
 }

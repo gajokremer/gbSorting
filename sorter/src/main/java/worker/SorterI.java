@@ -5,6 +5,9 @@ import com.zeroc.Ice.Current;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class SorterI implements Services.Sorter {
 
@@ -27,16 +30,11 @@ public class SorterI implements Services.Sorter {
     }
 
     // @Override
-    // public void update(Current current) {
-    // System.out.println("\nSorter updated!");
+    // public String receiveTask(String content, Current current) {
+    // // System.out.println("\nFile content received from Server -> \n");
+    // // System.out.println(content);
+    // return sort(content);
     // }
-
-    @Override
-    public String receiveTask(String content, Current current) {
-        // System.out.println("\nFile content received from Server -> \n");
-        // System.out.println(content);
-        return sort(content);
-    }
 
     private String sort(String s) {
 
@@ -58,43 +56,40 @@ public class SorterI implements Services.Sorter {
         return result;
     }
 
-    // private String sort(String s) {
-    // String[] resultContainer = { "" }; // Container to hold the result
+    @Override
+    public void receiveTaskRange(String path, int start, int end, Current current) {
+        if (!running) {
+            System.out.println("\nTask cannot be processed. Application is not running.");
+            return;
+        }
 
-    // // Use CountDownLatch to wait for the Runnable to finish
-    // CountDownLatch latch = new CountDownLatch(1);
+        System.out.println("\nStart: " + start + "\nEnd: " + end);
 
-    // Runnable task = () -> {
-    // if (running) {
-    // System.out.println("\nFile content received from Server");
-    // System.out.println("\nSorting file content...\n");
+        String content = readLines(path, start, end);
+        System.out.println("\nContent from " + start + " to " + end + ": " + content.length() + " lines");
 
-    // String[] lines = s.split("\n");
+        sort(content);
+    }
 
-    // // Sort the array of lines alphabetically
-    // Arrays.sort(lines);
+    private String readLines(String path, int start, int end) {
+        System.out.println("\nReading file content...\n");
 
-    // // Join the sorted lines into a single string with newline separation
-    // resultContainer[0] = String.join("\n", lines);
-    // }
+        StringBuilder contentBuilder = new StringBuilder();
 
-    // // Signal that the Runnable has completed
-    // latch.countDown();
-    // };
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            int currentLine = 1;
+            String line;
 
-    // // Submit the Runnable to the thread pool and get a Future
-    // Future<?> futureResult = threadPool.submit(task);
+            while ((line = reader.readLine()) != null && currentLine <= end) {
+                if (currentLine >= start) {
+                    contentBuilder.append(line).append("\n");
+                }
+                currentLine++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the exception according to your needs
+        }
 
-    // try {
-    // // Wait for the Runnable to complete
-    // latch.await();
-    // // Ensure that the Runnable has completed (handle exceptions if any)
-    // futureResult.get();
-    // } catch (InterruptedException | ExecutionException e) {
-    // e.printStackTrace();
-    // }
-
-    // return resultContainer[0];
-    // }
-
+        return contentBuilder.toString();
+    }
 }
