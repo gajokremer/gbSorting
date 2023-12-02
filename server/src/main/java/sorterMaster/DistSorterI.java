@@ -98,7 +98,7 @@ public class DistSorterI implements Services.DistSorter {
     }
 
     private void launchWorkers() {
-        System.out.println("\nLaunching workers...");
+        System.out.println("\n-> Launching workers...");
         // notifyObservers();
         subjectI.setRunning(true);
         subjectI._notifyAll();
@@ -106,7 +106,7 @@ public class DistSorterI implements Services.DistSorter {
     }
 
     private void shutDownWorkers() {
-        System.out.println("\nShutting down workers...");
+        System.out.println("\n-> Shutting down workers...");
         // notifyObservers();
         subjectI.setRunning(false);
         subjectI._notifyAll();
@@ -114,7 +114,7 @@ public class DistSorterI implements Services.DistSorter {
     }
 
     private String sort(String s) {
-        System.out.println("\nSorting file content from Server...\n");
+        System.out.println("\nSorting file content from Server...");
 
         String[] lines = s.split("\n");
 

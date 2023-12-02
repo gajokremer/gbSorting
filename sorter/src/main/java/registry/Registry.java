@@ -14,9 +14,9 @@ public class Registry {
     private SorterManagerPrx sorterManager;
     private DistSorterPrx distSorter;
 
-    public Registry(SorterManagerPrx sorterManager, DistSorterPrx distSorter) {
-        this.sorterManager = sorterManager;
-        this.distSorter = distSorter;
+    public Registry(SorterManagerPrx sorterManagerProxy, DistSorterPrx distSorterProxy) {
+        this.sorterManager = sorterManagerProxy;
+        this.distSorter = distSorterProxy;
     }
 
     public void register(SorterPrx sorterPrx) {

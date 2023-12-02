@@ -38,7 +38,7 @@ public class SorterI implements Services.Sorter {
 
     @Override
     public String receiveTask(String content, Current current) {
-        System.out.println("\nFile content received from Server -> \n");
+        // System.out.println("\nFile content received from Server -> \n");
         // System.out.println(content);
         return sort(content);
     }

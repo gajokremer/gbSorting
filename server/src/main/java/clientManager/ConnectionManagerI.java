@@ -77,10 +77,10 @@ public class ConnectionManagerI implements Services.ConnectionManager {
     // return id;
     // }
 
-    private synchronized long registerClient(ResponseReceiverPrx receiver) {
+    private synchronized long registerClient(ResponseReceiverPrx receiverProxy) {
         clientCount++;
         long id = clientCount;
-        clientReceivers.put(id, receiver);
+        clientReceivers.put(id, receiverProxy);
         return id;
     }
 }

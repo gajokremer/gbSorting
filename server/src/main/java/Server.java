@@ -57,6 +57,12 @@ public class Server {
 
                         System.out.println("\nSERVER STARTED...");
 
+                        Runtime.getRuntime().addShutdownHook(new Thread() {
+                                public void run() {
+                                        System.out.println("\n\nSHUTTING DOWN SERVER...\n");
+                                }
+                        });
+
                         communicator.waitForShutdown();
                         // communicator.destroy();
                 }

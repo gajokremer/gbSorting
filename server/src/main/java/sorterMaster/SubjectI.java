@@ -47,7 +47,7 @@ public class SubjectI implements Services.Subject {
         synchronized (this) {
             add(id, observerProxy, sorterProxy);
         }
-        System.out.println("\nAttached...");
+        System.out.println("\n-> Attached...");
         return id;
     }
 
@@ -56,7 +56,7 @@ public class SubjectI implements Services.Subject {
         synchronized (this) {
             remove(id);
         }
-        System.out.println("\nDetached...");
+        System.out.println("\n-> Detached...");
     }
 
     public void _notifyAll() {

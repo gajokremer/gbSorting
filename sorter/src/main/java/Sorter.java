@@ -3,6 +3,7 @@ import java.util.List;
 
 import Services.ObserverPrx;
 import Services.SorterPrx;
+import worker.Attacher;
 import worker.ObserverI;
 import worker.SorterI;
 
@@ -37,7 +38,8 @@ public class Sorter {
                 throw new Error("Invalid proxy");
             }
 
-            // int threadPoolSize = Integer.parseInt(communicator.getProperties().getProperty("Sorter.ThreadPoolSize"));
+            // int threadPoolSize =
+            // Integer.parseInt(communicator.getProperties().getProperty("Sorter.ThreadPoolSize"));
             int threadPoolSize = 10;
             SorterI sorterI = new SorterI(threadPoolSize);
             ObserverI observerI = new ObserverI(sorterI);
@@ -58,20 +60,18 @@ public class Sorter {
             // Registry registry = new Registry(sorterManager, distSorter);
             // registry.register(sorter);
 
-            long id = subjectProxy.attach(observerProxy, sorterProxy);
-            // distSorterPrx.attach(sorterPrx);
-            System.out.println("\nAttached...");
+            Attacher attacher = new Attacher();
+            attacher.attach(subjectProxy, observerProxy, sorterProxy);
 
-            // System.out.println("=> " + distSorterProxy.getTask());
-            // System.out.println("\nThread ID: " + Thread.currentThread().getId() + "\n");
+            // long id = subjectProxy.attach(observerProxy, sorterProxy);
+            // System.out.println("\nAttached...");
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    // distSorterPrx.detach(sorterPrx);
-                    subjectProxy.detach(id);
-                    System.out.println("\n\nDetached...\n");
-                }
-            });
+            // Runtime.getRuntime().addShutdownHook(new Thread() {
+            //     public void run() {
+            //         subjectProxy.detach(id);
+            //         System.out.println("\n\nDetached...\n");
+            //     }
+            // });
 
             communicator.waitForShutdown();
         }

@@ -21,22 +21,22 @@ public class Client {
                         // throw new Error("Invalid proxy");
                         // }
 
-                        Services.DistSorterPrx distSorterPrx = Services.DistSorterPrx
+                        Services.DistSorterPrx distSorterProxy = Services.DistSorterPrx
                                         .checkedCast(communicator.propertyToProxy("DistSorter.Proxy"))
                                         .ice_twoway()
                                         .ice_secure(false);
 
-                        Services.ConnectionManagerPrx connectionManagerPrx = Services.ConnectionManagerPrx
+                        Services.ConnectionManagerPrx connectionManagerProxy = Services.ConnectionManagerPrx
                                         .checkedCast(communicator.propertyToProxy("ConnectionManager.Proxy"))
                                         .ice_twoway()
                                         .ice_secure(false);
 
-                        Services.ResponseManagerPrx responseManagerPrx = Services.ResponseManagerPrx
+                        Services.ResponseManagerPrx responseManagerProxy = Services.ResponseManagerPrx
                                         .checkedCast(communicator.propertyToProxy("ResponseManager.Proxy"))
                                         .ice_twoway()
                                         .ice_secure(false);
 
-                        if (distSorterPrx == null || connectionManagerPrx == null || responseManagerPrx == null) {
+                        if (distSorterProxy == null || connectionManagerProxy == null || responseManagerProxy == null) {
                                 throw new Error("Invalid proxy");
                         }
 
@@ -57,7 +57,7 @@ public class Client {
                         // askForInput(distSorter, connectionManager, responseManager, receiver);
 
                         InputReader inputReader = new InputReader();
-                        inputReader.askForInput(distSorterPrx, connectionManagerPrx, responseManagerPrx, receiver);
+                        inputReader.askForInput(distSorterProxy, connectionManagerProxy, responseManagerProxy, receiver);
 
                         communicator.waitForShutdown();
                 }

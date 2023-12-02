@@ -11,17 +11,17 @@ public class InputReader {
 
     private Scanner sc = new java.util.Scanner(System.in);
 
-    public void askForInput(DistSorterPrx distSorterPrx, ConnectionManagerPrx connectionManagerPrx,
-            ResponseManagerPrx responseManager, ResponseReceiverPrx receiver) {
+    public void askForInput(DistSorterPrx distSorterProxy, ConnectionManagerPrx connectionManagerProxy,
+            ResponseManagerPrx responseManagerProxy, ResponseReceiverPrx receiverProxy) {
 
         String hostname = getHostname();
         // long clientId = manager.registerClient(hostname, receiver);
-        long clientId = connectionManagerPrx.registerClient(hostname, receiver);
+        long clientId = connectionManagerProxy.registerClient(hostname, receiverProxy);
         System.out.println("\n-> Client Id: " + clientId + "\n");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                connectionManagerPrx.removeClient(clientId);
+                connectionManagerProxy.removeClient(clientId);
                 System.out.println("\n\nDisconnecting Client '" + clientId + "' from server...\n");
             }
         });
@@ -42,7 +42,7 @@ public class InputReader {
 
                 long startTime = System.currentTimeMillis();
 
-                String result = distSorterPrx.distSort(clientId, path);
+                String result = distSorterProxy.distSort(clientId, path);
                 System.out.println("\n" + result + "\n");
 
                 long endTime = System.currentTimeMillis();
@@ -51,7 +51,7 @@ public class InputReader {
             }
 
             if (input.equals("exit")) {
-                connectionManagerPrx.removeClient(clientId);
+                connectionManagerProxy.removeClient(clientId);
                 System.out.println("\nDisconnecting Client '" + clientId + "' from server...\n");
                 break;
             }

@@ -12,7 +12,7 @@ public class ObserverI implements Services.Observer {
 
     @Override
     public void update(boolean running, Current current) {
-        System.out.println("\nUpdated...");
+        System.out.println("\n-> Update received...");
         // System.out.println("Observer thread: " + Thread.currentThread().getId());
         sorterI.setRunning(running);
     }
