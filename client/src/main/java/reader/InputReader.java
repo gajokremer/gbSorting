@@ -37,7 +37,7 @@ public class InputReader {
                 // String path = "/opt/share/gb/";
                 // path = path + file + ".txt";
 
-                String path = "/opt/share/gb/" + input.split(";")[1] + ".txt";
+                String path = "/opt/share/gb/tests/" + input.split(";")[1] + ".txt";
 
                 // String path = "/opt/share/gb/input.txt";
 
@@ -48,7 +48,9 @@ public class InputReader {
 
                 long endTime = System.currentTimeMillis();
 
-                System.out.println("\nTotal execution time: " + (endTime - startTime) + "ms\n");
+                long executionTime = endTime - startTime;
+                long timeInSeconds = executionTime / 1000;
+                System.out.println("\nTotal execution time: " + executionTime + "ms" + " (" + timeInSeconds + "s)\n");
             }
 
             if (input.equals("exit")) {

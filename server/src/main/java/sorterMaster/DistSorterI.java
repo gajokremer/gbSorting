@@ -1,8 +1,5 @@
 package sorterMaster;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -20,93 +17,60 @@ public class DistSorterI implements Services.DistSorter {
     // private SorterManagerI sorterManager;
 
     private SubjectI subjectI;
+    private ContentManager contentManager;
 
     private Queue<String> tasks = new LinkedList<>();
     private List<String> globalResults = new ArrayList<>();
 
-    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, SubjectI subjectI) {
+    public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, SubjectI subjectI,
+            ContentManager contentManager) {
         this.responseManager = responseManager;
         // this.sorterManager = sorterManager;
 
         this.subjectI = subjectI;
-
+        this.contentManager = contentManager;
     }
 
-    private static String readAndGetString(String filePath) {
-        StringBuilder contentBuilder = new StringBuilder();
+    // private static String readAndGetString(String filePath) {
+    // StringBuilder contentBuilder = new StringBuilder();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            int lineCount = 0; // Counter to track the number of lines
+    // try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+    // String line;
+    // int lineCount = 0; // Counter to track the number of lines
 
-            while ((line = reader.readLine()) != null) {
-                // Process each line as needed
-                contentBuilder.append(line).append(System.lineSeparator());
+    // while ((line = reader.readLine()) != null) {
+    // // Process each line as needed
+    // contentBuilder.append(line).append(System.lineSeparator());
 
-                // Print each line locally
-                System.out.println(line);
+    // // Print each line locally
+    // System.out.println(line);
 
-                // Increment the line counter
-                lineCount++;
-            }
+    // // Increment the line counter
+    // lineCount++;
+    // }
 
-            // Print the total number of lines locally
-            System.out.println("Total lines in the file: " + lineCount);
+    // // Print the total number of lines locally
+    // System.out.println("Total lines in the file: " + lineCount);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
 
-        return contentBuilder.toString();
-    }
-
-    private static int countFileLines(String filePath) {
-        int lineCount = 0; // Counter to track the number of lines
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            while (reader.readLine() != null) {
-                // Increment the line counter
-                lineCount++;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return lineCount;
-    }
-
-    private static int[][] calculateRanges(int totalLines, int parts) {
-        if (totalLines <= 0 || parts <= 0) {
-            throw new IllegalArgumentException("Total lines and parts must be positive integers.");
-        }
-
-        int partLength = totalLines / parts;
-        int remainder = totalLines % parts;
-
-        int[][] result = new int[parts][2];
-        int startIdx = 0;
-
-        for (int i = 0; i < parts; i++) {
-            int endIdx = startIdx + partLength + (i < remainder ? 1 : 0);
-            result[i][0] = startIdx;
-            result[i][1] = endIdx - 1;
-            startIdx = endIdx;
-        }
-
-        return result;
-    }
+    // return contentBuilder.toString();
+    // }
 
     @Override
     public String distSort(long id, String path, Current current) {
         System.out.println("\nFile read request received from Client '" + id + "' -> " + "'" + path + "'");
 
-        int totalLines = countFileLines(path);
+        // contentManager.createOutputFile("/opt/share/gb/", "output.txt");
+
+        int totalLines = contentManager.countFileLines(path);
         int workerCount = subjectI.getWorkerCount();
         // int sorterCount = 3;
 
         if (workerCount > 1) {
-            int[][] ranges = calculateRanges(totalLines, workerCount);
+            int[][] ranges = contentManager.calculateRanges(totalLines, workerCount);
 
             for (int[] range : ranges) {
                 tasks.add(range[0] + ";" + range[1]);
@@ -117,19 +81,28 @@ public class DistSorterI implements Services.DistSorter {
             // }
 
             System.out.println("\nInitial tasks: " + tasks.size());
-
             launchWorkers();
 
+            long counter = 0;
             for (Services.SorterPrx sorterProxy : subjectI.getSorterProxies().values()) {
                 String task = tasks.remove();
                 int start = Integer.parseInt(task.split(";")[0]);
                 int end = Integer.parseInt(task.split(";")[1]);
-                sorterProxy.receiveTaskRange(path, start, end);
+                counter++;
+                sorterProxy.receiveTaskRange(path, start, end, counter);
             }
 
             shutDownWorkers();
-
             System.out.println("\nRemaining tasks: " + tasks.size());
+
+            String targetPath = "/opt/share/gb/";
+            String fileName = "output.txt";
+            contentManager.createOutputFile(targetPath, fileName);
+            contentManager.combineFiles(fileName, targetPath, "/opt/share/gb/outputs/");
+
+            String combinedContent = contentManager.readAllLines(targetPath.concat(fileName));
+            String sortedContent = sort(combinedContent);
+            contentManager.overWriteFile(targetPath.concat(fileName), sortedContent);
         }
 
         return "SERVER -> Result processed successfully!";
@@ -196,41 +169,41 @@ public class DistSorterI implements Services.DistSorter {
     // }
     // }
 
-    private void readAndPrintFile(String filePath) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            int lineCount = 0; // Counter to track the number of lines
+    // private void readAndPrintFile(String filePath) {
+    // try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+    // String line;
+    // int lineCount = 0; // Counter to track the number of lines
 
-            while ((line = reader.readLine()) != null) {
-                // Process each line as needed
-                System.out.println(line);
+    // while ((line = reader.readLine()) != null) {
+    // // Process each line as needed
+    // System.out.println(line);
 
-                // Increment the line counter
-                lineCount++;
-            }
+    // // Increment the line counter
+    // lineCount++;
+    // }
 
-            // Print the total number of lines
-            System.out.println("Total lines in the file: " + lineCount);
+    // // Print the total number of lines
+    // System.out.println("Total lines in the file: " + lineCount);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
+    // }
 
     private void launchWorkers() {
-        System.out.println("\n-> Launching workers...");
+        System.out.println("\nLaunching workers...");
         // notifyObservers();
         subjectI.setRunning(true);
         subjectI._notifyAll();
-        System.out.println("\nWorkers launched!");
+        System.out.println("-> Workers launched!");
     }
 
     private void shutDownWorkers() {
-        System.out.println("\n-> Shutting down workers...");
+        System.out.println("\nShutting down workers...");
         // notifyObservers();
         subjectI.setRunning(false);
         subjectI._notifyAll();
-        System.out.println("\nWorkers shut down!");
+        System.out.println("-> Workers shut down!");
     }
 
     private String sort(String s) {

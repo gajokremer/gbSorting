@@ -66,6 +66,6 @@ module Services {
     interface Sorter {
         //string sort(string s);
        //string receiveTask(string content);
-        void receiveTaskRange(string path, int start, int end);
+        void receiveTaskRange(string path, int start, int end, long sorterId);
     }
 }

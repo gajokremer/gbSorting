@@ -2,12 +2,11 @@ package worker;
 
 import com.zeroc.Ice.Current;
 
+import fileAccessor.FileAccessor;
+
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class SorterI implements Services.Sorter {
 
@@ -18,7 +17,12 @@ public class SorterI implements Services.Sorter {
     // }
 
     private ExecutorService threadPool = Executors.newFixedThreadPool(10);
+    FileAccessor fileAccessor;
     private boolean running = false;
+
+    public SorterI(FileAccessor fileAccessor) {
+        this.fileAccessor = fileAccessor;
+    }
 
     public boolean isRunning() {
         return running;
@@ -36,12 +40,35 @@ public class SorterI implements Services.Sorter {
     // return sort(content);
     // }
 
+    @Override
+    public void receiveTaskRange(String path, int start, int end, long sorterId, Current current) {
+        if (!running) {
+            System.out.println("\nTask cannot be processed. Application is not running.");
+            return;
+        }
+
+        System.out.println("\nSorter Id: " + sorterId);
+
+        // System.out.println("\nStart: " + start + "\nEnd: " + end);
+
+        String content = fileAccessor.readContent(path, start, end);
+        System.out.println("\nRead content from " + start + " to " + end + ": "
+                + content.split("\n").length + " lines");
+        // System.out.println("\nContent: \n" + content);
+
+        String sortedContent = sort(content);
+        String outputFileLocation = "/opt/share/gb/outputs/";
+        String outputFileName = "output" + sorterId + ".txt";
+        fileAccessor.createOutputFile(outputFileLocation, outputFileName);
+        fileAccessor.writeToFile(outputFileLocation.concat(outputFileName), sortedContent);
+    }
+
     private String sort(String s) {
 
         String result = "";
 
         if (running) {
-            System.out.println("\nFile content received from Server");
+            // System.out.println("\nFile content received from Server");
             System.out.println("\nSorting file content...\n");
 
             String[] lines = s.split("\n");
@@ -52,44 +79,6 @@ public class SorterI implements Services.Sorter {
             // Join the sorted lines into a single string with newline separation
             result = String.join("\n", lines);
         }
-
         return result;
-    }
-
-    @Override
-    public void receiveTaskRange(String path, int start, int end, Current current) {
-        if (!running) {
-            System.out.println("\nTask cannot be processed. Application is not running.");
-            return;
-        }
-
-        System.out.println("\nStart: " + start + "\nEnd: " + end);
-
-        String content = readLines(path, start, end);
-        System.out.println("\nContent from " + start + " to " + end + ": " + content.length() + " lines");
-
-        sort(content);
-    }
-
-    private String readLines(String path, int start, int end) {
-        System.out.println("\nReading file content...\n");
-
-        StringBuilder contentBuilder = new StringBuilder();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            int currentLine = 1;
-            String line;
-
-            while ((line = reader.readLine()) != null && currentLine <= end) {
-                if (currentLine >= start) {
-                    contentBuilder.append(line).append("\n");
-                }
-                currentLine++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception according to your needs
-        }
-
-        return contentBuilder.toString();
     }
 }

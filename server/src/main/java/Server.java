@@ -3,6 +3,7 @@ import java.util.List;
 
 import clientManager.ConnectionManagerI;
 import clientManager.ResponseManagerI;
+import sorterMaster.ContentManager;
 import sorterMaster.DistSorterI;
 import sorterMaster.SubjectI;
 import sorterPool.SorterManagerI;
@@ -20,7 +21,8 @@ public class Server {
                         ResponseManagerI responseManager = new ResponseManagerI(connectionManager);
                         // ForkJoinMasterI forkJoinMaster = new ForkJoinMasterI(sorterManager);
                         SubjectI subjectI = new SubjectI();
-                        DistSorterI distSorter = new DistSorterI(responseManager, sorterManager, subjectI);
+                        ContentManager contentManager = new ContentManager();
+                        DistSorterI distSorter = new DistSorterI(responseManager, sorterManager, subjectI, contentManager);
 
                         // com.zeroc.Ice.ObjectAdapter sorterAdapter =
                         // communicator.createObjectAdapter("DistSorter");

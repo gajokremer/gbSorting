@@ -3,6 +3,7 @@ import java.util.List;
 
 import Services.ObserverPrx;
 import Services.SorterPrx;
+import fileAccessor.FileAccessor;
 import worker.Attacher;
 import worker.ObserverI;
 import worker.SorterI;
@@ -38,8 +39,8 @@ public class Sorter {
                 throw new Error("Invalid proxy");
             }
 
-        //     int threadPoolSize = 10;
-            SorterI sorterI = new SorterI();
+            FileAccessor fileAccessor = new FileAccessor();
+            SorterI sorterI = new SorterI(fileAccessor);
             ObserverI observerI = new ObserverI(sorterI);
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
