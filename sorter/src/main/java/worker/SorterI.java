@@ -14,13 +14,8 @@ public class SorterI implements Services.Sorter {
     // this.master = master;
     // }
 
-    private ExecutorService threadPool;
-
+    private ExecutorService threadPool = Executors.newFixedThreadPool(10);
     private boolean running = false;
-
-    public SorterI(int threadPoolSize) {
-        this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
-    }
 
     public boolean isRunning() {
         return running;
@@ -48,10 +43,6 @@ public class SorterI implements Services.Sorter {
         String result = "";
 
         if (running) {
-
-            // System.out.println("\nFile content received from Server -> \n");
-            // System.out.println(s);
-
             System.out.println("\nFile content received from Server");
             System.out.println("\nSorting file content...\n");
 
@@ -62,13 +53,48 @@ public class SorterI implements Services.Sorter {
 
             // Join the sorted lines into a single string with newline separation
             result = String.join("\n", lines);
-
-            // Write the sorted result to the output.txt file
-            // writeToFile(result);
-
-            // return "Result processed successfully!";
         }
 
         return result;
     }
+
+    // private String sort(String s) {
+    // String[] resultContainer = { "" }; // Container to hold the result
+
+    // // Use CountDownLatch to wait for the Runnable to finish
+    // CountDownLatch latch = new CountDownLatch(1);
+
+    // Runnable task = () -> {
+    // if (running) {
+    // System.out.println("\nFile content received from Server");
+    // System.out.println("\nSorting file content...\n");
+
+    // String[] lines = s.split("\n");
+
+    // // Sort the array of lines alphabetically
+    // Arrays.sort(lines);
+
+    // // Join the sorted lines into a single string with newline separation
+    // resultContainer[0] = String.join("\n", lines);
+    // }
+
+    // // Signal that the Runnable has completed
+    // latch.countDown();
+    // };
+
+    // // Submit the Runnable to the thread pool and get a Future
+    // Future<?> futureResult = threadPool.submit(task);
+
+    // try {
+    // // Wait for the Runnable to complete
+    // latch.await();
+    // // Ensure that the Runnable has completed (handle exceptions if any)
+    // futureResult.get();
+    // } catch (InterruptedException | ExecutionException e) {
+    // e.printStackTrace();
+    // }
+
+    // return resultContainer[0];
+    // }
+
 }

@@ -38,10 +38,8 @@ public class Sorter {
                 throw new Error("Invalid proxy");
             }
 
-            // int threadPoolSize =
-            // Integer.parseInt(communicator.getProperties().getProperty("Sorter.ThreadPoolSize"));
-            int threadPoolSize = 10;
-            SorterI sorterI = new SorterI(threadPoolSize);
+        //     int threadPoolSize = 10;
+            SorterI sorterI = new SorterI();
             ObserverI observerI = new ObserverI(sorterI);
 
             com.zeroc.Ice.ObjectAdapter sorterAdapter = communicator.createObjectAdapter("Sorter");
@@ -67,10 +65,10 @@ public class Sorter {
             // System.out.println("\nAttached...");
 
             // Runtime.getRuntime().addShutdownHook(new Thread() {
-            //     public void run() {
-            //         subjectProxy.detach(id);
-            //         System.out.println("\n\nDetached...\n");
-            //     }
+            // public void run() {
+            // subjectProxy.detach(id);
+            // System.out.println("\n\nDetached...\n");
+            // }
             // });
 
             communicator.waitForShutdown();

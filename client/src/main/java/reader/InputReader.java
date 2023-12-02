@@ -30,7 +30,7 @@ public class InputReader {
             System.out.print("\n-> ");
             String input = sc.nextLine();
 
-            if (input.contains(".")) {
+            if (input.contains(";")) {
                 // String[] parts = input.split(";");
                 // String file = parts[1];
 
@@ -38,7 +38,10 @@ public class InputReader {
                 // path = path + file + ".txt";
 
                 // String path = "/opt/share/gb/" + input.split(";")[1] + ".txt";
-                String path = "/opt/share/gb/input.txt";
+
+                // String path = "/opt/share/gb/input.txt";
+
+                String path = "data/test.txt";
 
                 long startTime = System.currentTimeMillis();
 

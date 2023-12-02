@@ -46,14 +46,14 @@ public class DistSorterI implements Services.DistSorter {
 
             // int sorterCount = sorterManager.getSorterCount();
             // int sorterCount = sorterPool.size();
-            int workerCount = subjectI.getWorkerCount();
-            System.out.println("\n- Total Workers: " + workerCount);
+            int sorterCount = subjectI.getWorkerCount();
+            System.out.println("\n- Total Workers: " + sorterCount);
 
             String[] lines = content.split("\n");
             String result = "";
 
-            if (workerCount > 1) {
-                String[] parts = divide(lines, workerCount);
+            if (sorterCount > 1) {
+                String[] parts = divide(lines, sorterCount);
 
                 // for (String r : parts) {
                 // System.out.println("\n- Length: " + partLength(r));
@@ -73,12 +73,12 @@ public class DistSorterI implements Services.DistSorter {
 
                 launchWorkers();
 
-                // distrubute the task queue to the workers
-                for (SorterPrx sorter : subjectI.getSorterProxies().values()) {
-                    globalResults.add(sorter.receiveTask(tasks.poll()));
+                // distrubute the task queue to the observers
+                for (SorterPrx sorterProxy : subjectI.getSorterProxies().values()) {
+                    sorterProxy.receiveTask(tasks.remove());
                 }
 
-                result = sort(globalResults.toString());
+                result = sort(result);
 
                 shutDownWorkers();
 
