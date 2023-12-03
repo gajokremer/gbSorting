@@ -43,7 +43,8 @@ public class SubjectI implements Services.Subject {
 
     @Override
     public long attach(ObserverPrx observerProxy, SorterPrx sorterProxy, Current current) {
-        long id = workerCount++;
+        workerCount++;
+        long id = workerCount;
         synchronized (this) {
             add(id, observerProxy, sorterProxy);
         }

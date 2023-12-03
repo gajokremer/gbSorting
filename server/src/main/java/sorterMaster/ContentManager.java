@@ -26,25 +26,25 @@ public class ContentManager {
         return lineCount;
     }
 
-    public String readAllLines(String path) {
-        System.out.println("\nReading file content...\n");
+    // public String readAllLines(String path) {
+    //     System.out.println("\nReading file content...\n");
 
-        StringBuilder contentBuilder = new StringBuilder();
+    //     StringBuilder contentBuilder = new StringBuilder();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            String line;
+    //     try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+    //         String line;
 
-            while ((line = reader.readLine()) != null) {
-                contentBuilder.append(line).append("\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception according to your needs
-        }
+    //         while ((line = reader.readLine()) != null) {
+    //             contentBuilder.append(line).append("\n");
+    //         }
+    //     } catch (IOException e) {
+    //         e.printStackTrace(); // Handle the exception according to your needs
+    //     }
 
-        System.out.println("-> File content read successfully.");
+    //     System.out.println("-> File content read successfully.");
 
-        return contentBuilder.toString();
-    }
+    //     return contentBuilder.toString();
+    // }
 
     public int[][] calculateRanges(int totalLines, int parts) {
         if (totalLines <= 0 || parts <= 0) {

@@ -1,10 +1,17 @@
 package sorterMaster;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.io.IOException;
 import com.zeroc.Ice.Current;
 
+import Services.SorterPrx;
 import clientManager.ResponseManagerI;
 import sorterPool.SorterManagerI;
 
@@ -13,11 +20,13 @@ public class DistSorterI implements Services.DistSorter {
     private ResponseManagerI responseManager;
     // private SorterManagerI sorterManager;
 
-    private SubjectI subjectI;
     private ContentManager contentManager;
+    private SubjectI subjectI;
 
     private Queue<String> tasks = new LinkedList<>();
     // private List<String> globalResults = new ArrayList<>();
+
+    private ExecutorService masterThreadPool = Executors.newFixedThreadPool(10);
 
     public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, SubjectI subjectI,
             ContentManager contentManager) {
@@ -52,13 +61,41 @@ public class DistSorterI implements Services.DistSorter {
             System.out.println("\nInitial tasks: " + tasks.size());
             launchWorkers();
 
-            long counter = 0;
-            for (Services.SorterPrx sorterProxy : subjectI.getSorterProxies().values()) {
+            // long counter = 0;
+            // for (Services.SorterPrx sorterProxy : subjectI.getSorterProxies().values()) {
+            // String task = tasks.remove();
+            // int start = Integer.parseInt(task.split(";")[0]);
+            // int end = Integer.parseInt(task.split(";")[1]);
+            // counter++;
+            // sorterProxy.receiveTaskRange(dataPath, start, end, counter);
+            // }
+
+            List<Callable<Void>> sortingTasks = new ArrayList<>();
+
+            for (Long sorterId : subjectI.getSorterProxies().keySet()) {
                 String task = tasks.remove();
-                int start = Integer.parseInt(task.split(";")[0]);
-                int end = Integer.parseInt(task.split(";")[1]);
-                counter++;
-                sorterProxy.receiveTaskRange(dataPath, start, end, counter);
+                // Runnable sortingTask = () -> {
+                Callable<Void> sortingTask = () -> {
+                    int start = Integer.parseInt(task.split(";")[0]);
+                    int end = Integer.parseInt(task.split(";")[1]);
+                    SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
+                    sorterProxy.receiveTaskRange(dataPath, start, end, sorterId);
+                    return null;
+                };
+
+                // masterThreadPool.execute(sortingTask);
+                sortingTasks.add(sortingTask);
+            }
+
+            try {
+                List<Future<Void>> futures = masterThreadPool.invokeAll(sortingTasks);
+
+                for (Future<Void> future : futures) {
+                    future.get();
+                }
+                System.out.println("-> All tasks executed successfully.");
+            } catch (Exception e) {
+                System.out.println("Error executing sorting tasks: " + e.getMessage());
             }
 
             shutDownWorkers();
@@ -74,12 +111,6 @@ public class DistSorterI implements Services.DistSorter {
             } catch (IOException e) {
                 System.out.println("Error merging sorted chunks: " + e.getMessage());
             }
-
-            // String combinedContent =
-            // contentManager.readAllLines(targetPath.concat(fileName));
-            // contentManager.writeToFile(targetPath.concat(fileName), combinedContent);
-            // String sortedContent = sort(combinedContent);
-            // contentManager.overWriteFile(targetPath.concat(fileName), sortedContent);
 
         } else {
             // String content = contentManager.readAllLines(dataPath);
@@ -126,35 +157,35 @@ public class DistSorterI implements Services.DistSorter {
     // return result;
     // }
 
-    private String[] divide(String[] lines, int parts) {
+    // private String[] divide(String[] lines, int parts) {
 
-        // if (lines == null || lines.length == 0 || parts <= 0) {
-        // return new String[] { "" };
-        // }
+    // // if (lines == null || lines.length == 0 || parts <= 0) {
+    // // return new String[] { "" };
+    // // }
 
-        int partLength = lines.length / parts;
-        int remainder = lines.length % parts;
+    // int partLength = lines.length / parts;
+    // int remainder = lines.length % parts;
 
-        String[] result = new String[parts];
-        int startIdx = 0;
+    // String[] result = new String[parts];
+    // int startIdx = 0;
 
-        for (int i = 0; i < parts; i++) {
-            int endIdx = startIdx + partLength + (i < remainder ? 1 : 0);
-            StringBuilder sb = new StringBuilder();
+    // for (int i = 0; i < parts; i++) {
+    // int endIdx = startIdx + partLength + (i < remainder ? 1 : 0);
+    // StringBuilder sb = new StringBuilder();
 
-            for (int j = startIdx; j < endIdx; j++) {
-                sb.append(lines[j]);
-                if (j < endIdx - 1) {
-                    sb.append("\n");
-                }
-            }
+    // for (int j = startIdx; j < endIdx; j++) {
+    // sb.append(lines[j]);
+    // if (j < endIdx - 1) {
+    // sb.append("\n");
+    // }
+    // }
 
-            result[i] = sb.toString();
-            startIdx = endIdx;
-        }
+    // result[i] = sb.toString();
+    // startIdx = endIdx;
+    // }
 
-        return result;
-    }
+    // return result;
+    // }
 
     // private int partLength(String part) {
     // String[] lines = part.split("\n");
