@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,26 +114,38 @@ public class ContentManager {
     }
 
     void combineFiles(String fileName, String targetPath, String filesPath) {
-        // System.out.println("\nCombining files...");
-        // System.out.println("-> '" + targetPath + fileName + "'");
-        // System.out.println("-> '" + filesPath + "'");
-
         Path targetFilePath = Paths.get(targetPath, fileName);
 
         try {
-            // Get a list of all files in the specified directory
             try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(filesPath))) {
                 for (Path filePath : directoryStream) {
-                    // Read each file and write its content to the target file
                     byte[] fileContent = Files.readAllBytes(filePath);
                     Files.write(targetFilePath, fileContent, StandardOpenOption.APPEND);
+
+                    // Add a newline after writing the file content
+                    Files.write(targetFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
+
+                    // Delete the file after its content is appended to the target file
+                    Files.delete(filePath);
                 }
             }
 
-            System.out.println("Files combined successfully!");
+            System.out.println("Files combined and deleted successfully!");
 
         } catch (IOException e) {
             System.err.println("Error combining files: " + e.getMessage());
+        }
+    }
+
+    public void writeToFile(String filePath, String content) {
+        // Specify the path to the output.txt file
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            // writer.write(content);
+            writer.write(content + "\n");
+            System.out.println("\nResult written to '" + filePath + "'.");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

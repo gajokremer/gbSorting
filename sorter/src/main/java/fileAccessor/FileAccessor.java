@@ -79,8 +79,8 @@ public class FileAccessor {
         // Specify the path to the output.txt file
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            // writer.write(content);
-            writer.write(content + "\n");
+            writer.write(content);
+            // writer.write(content + "\n");
             System.out.println("\nResult written to '" + filePath + "'.");
         } catch (IOException e) {
             e.printStackTrace();

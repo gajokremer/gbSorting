@@ -37,13 +37,13 @@ public class InputReader {
                 // String path = "/opt/share/gb/";
                 // path = path + file + ".txt";
 
-                String path = "/opt/share/gb/tests/" + input.split(";")[1] + ".txt";
+                String dataPath = "/opt/share/gb/tests/" + input.split(";")[1] + ".txt";
 
                 // String path = "/opt/share/gb/input.txt";
 
                 long startTime = System.currentTimeMillis();
 
-                String result = distSorterProxy.distSort(clientId, path);
+                String result = distSorterProxy.distSort(clientId, dataPath);
                 System.out.println("\n" + result + "\n");
 
                 long endTime = System.currentTimeMillis();

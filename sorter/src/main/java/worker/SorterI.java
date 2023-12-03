@@ -41,7 +41,7 @@ public class SorterI implements Services.Sorter {
     // }
 
     @Override
-    public void receiveTaskRange(String path, int start, int end, long sorterId, Current current) {
+    public void receiveTaskRange(String dataPath, int start, int end, long sorterId, Current current) {
         if (!running) {
             System.out.println("\nTask cannot be processed. Application is not running.");
             return;
@@ -51,10 +51,10 @@ public class SorterI implements Services.Sorter {
 
         // System.out.println("\nStart: " + start + "\nEnd: " + end);
 
-        String content = fileAccessor.readContent(path, start, end);
+        String content = fileAccessor.readContent(dataPath, start, end);
         System.out.println("\nRead content from " + start + " to " + end + ": "
                 + content.split("\n").length + " lines");
-        // System.out.println("\nContent: \n" + content);
+        // System.out.println("\nSorter Content: \n{" + content+"}");
 
         String sortedContent = sort(content);
         String outputFileLocation = "/opt/share/gb/outputs/";

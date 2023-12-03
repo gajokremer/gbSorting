@@ -24,7 +24,7 @@ module Services {
     // Server
 
     interface DistSorter {
-        string distSort(long id, string path);
+        string distSort(long id, string dataPath);
         //void attach(Sorter* sorterProxy);
         //void detach(Sorter* sorterProxy);
         //bool getRunning();
@@ -66,6 +66,6 @@ module Services {
     interface Sorter {
         //string sort(string s);
        //string receiveTask(string content);
-        void receiveTaskRange(string path, int start, int end, long sorterId);
+        void receiveTaskRange(string dataPath, int start, int end, long sorterId);
     }
 }
