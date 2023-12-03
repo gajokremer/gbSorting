@@ -2,13 +2,7 @@ package sorterMaster;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.io.RandomAccessFile;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.PriorityQueue;
-
 import com.zeroc.Ice.Current;
 
 import clientManager.ResponseManagerI;
@@ -71,19 +65,19 @@ public class DistSorterI implements Services.DistSorter {
             System.out.println("\nRemaining tasks: " + tasks.size());
 
             String targetPath = "/opt/share/gb/";
-            String fileName = "output.txt";
-            contentManager.createOutputFile(targetPath, fileName);
-            contentManager.combineFiles(fileName, targetPath, "/opt/share/gb/outputs/");
+            String fileName = "finalOutput.txt";
+            // contentManager.createOutputFile(targetPath, fileName);
+            // contentManager.combineFiles(fileName, targetPath, "/opt/share/gb/outputs/");
 
-            String combinedContent = contentManager.readAllLines(targetPath.concat(fileName));
-            contentManager.writeToFile(targetPath.concat(fileName), combinedContent);
+            try {
+                contentManager.mergeSortedChunks("/opt/share/gb/outputs/", targetPath.concat(fileName));
+            } catch (IOException e) {
+                System.out.println("Error merging sorted chunks: " + e.getMessage());
+            }
 
-            // try {
-            // mergeSortedChunks(targetPath.concat(fileName), ranges,
-            // targetPath.concat("finalOutput.txt"));
-            // } catch (IOException e) {
-            // System.out.println("\nError merging sorted chunks: " + e.getMessage());
-            // }
+            // String combinedContent =
+            // contentManager.readAllLines(targetPath.concat(fileName));
+            // contentManager.writeToFile(targetPath.concat(fileName), combinedContent);
             // String sortedContent = sort(combinedContent);
             // contentManager.overWriteFile(targetPath.concat(fileName), sortedContent);
 
@@ -110,67 +104,6 @@ public class DistSorterI implements Services.DistSorter {
         subjectI.setRunning(false);
         subjectI._notifyAll();
         System.out.println("-> Workers shut down!");
-    }
-
-    //
-
-    public void mergeSortedChunks(String inputFile, int[][] ranges, String finalOutputFile) throws IOException {
-        PriorityQueue<String[]> queue = new PriorityQueue<>(Comparator.comparing(arr -> arr[0]));
-        RandomAccessFile file = new RandomAccessFile(inputFile, "r");
-        long[] startOffsets = new long[ranges.length];
-
-        for (int i = 0; i < ranges.length; i++) {
-            startOffsets[i] = findByteOffsetForLine(file, ranges[i][0]);
-        }
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(finalOutputFile));
-
-        try {
-            for (int i = 0; i < ranges.length; i++) {
-                file.seek(startOffsets[i]);
-                if (file.getFilePointer() < file.length()) {
-                    String line = file.readLine();
-                    if (line != null) {
-                        queue.add(new String[] { line, String.valueOf(i) });
-                    }
-                }
-            }
-
-            while (!queue.isEmpty()) {
-                String[] chunkLine = queue.poll();
-                writer.write(chunkLine[0]);
-                writer.newLine();
-
-                int chunkId = Integer.parseInt(chunkLine[1]);
-                if (withinRange(file, ranges[chunkId])) {
-                    String nextLine = file.readLine();
-                    if (nextLine != null) {
-                        queue.add(new String[] { nextLine, String.valueOf(chunkId) });
-                    }
-                }
-            }
-        } finally {
-            writer.close();
-            file.close();
-        }
-    }
-
-    private long findByteOffsetForLine(RandomAccessFile file, int lineNumber) throws IOException {
-        file.seek(0);
-        for (int i = 1; i < lineNumber; i++) {
-            if (file.getFilePointer() < file.length()) {
-                file.readLine();
-            } else {
-                break;
-            }
-        }
-        return file.getFilePointer();
-    }
-
-    private boolean withinRange(RandomAccessFile file, int[] range) throws IOException {
-        long currentOffset = file.getFilePointer();
-        long endOffset = findByteOffsetForLine(file, range[1] + 1);
-        return currentOffset < endOffset;
     }
 
     //
