@@ -36,7 +36,7 @@ module Services {
         long attach(Observer* observerProxy, Sorter* sorterProxy);
         void detach(long id);
         //void notifyAll(string s);
-        bool getRunning();
+        //bool getRunning();
     }
 
     // Client

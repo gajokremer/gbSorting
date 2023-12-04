@@ -1,4 +1,4 @@
-package sorterMaster;
+package sortingStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,17 +36,17 @@ public class SubjectI implements Services.Subject {
         this.running = running;
     }
 
-    @Override
-    public boolean getRunning(Current current) {
-        return running;
-    }
+    // @Override
+    // public boolean getRunning(Current current) {
+    //     return running;
+    // }
 
     @Override
     public long attach(ObserverPrx observerProxy, SorterPrx sorterProxy, Current current) {
         workerCount++;
         long id = workerCount;
         synchronized (this) {
-            add(id, observerProxy, sorterProxy);
+            addObserver(id, observerProxy, sorterProxy);
         }
         System.out.println("\n-> Attached...");
         return id;
@@ -56,7 +56,7 @@ public class SubjectI implements Services.Subject {
     public void detach(long id, Current current) {
         workerCount--;
         synchronized (this) {
-            remove(id);
+            removeObserver(id);
         }
         System.out.println("\n-> Detached...");
     }
@@ -67,12 +67,12 @@ public class SubjectI implements Services.Subject {
         }
     }
 
-    private synchronized void add(long id, ObserverPrx observerProxy, SorterPrx sorterProxy) {
+    private synchronized void addObserver(long id, ObserverPrx observerProxy, SorterPrx sorterProxy) {
         observerProxies.put(id, observerProxy);
         sorterProxies.put(id, sorterProxy);
     }
 
-    private synchronized void remove(long id) {
+    private synchronized void removeObserver(long id) {
         sorterProxies.remove(id);
         observerProxies.remove(id);
     }

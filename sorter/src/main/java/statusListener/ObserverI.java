@@ -1,6 +1,8 @@
-package worker;
+package statusListener;
 
 import com.zeroc.Ice.Current;
+
+import worker.SorterI;
 
 public class ObserverI implements Services.Observer {
 
@@ -14,7 +16,7 @@ public class ObserverI implements Services.Observer {
     public void update(boolean running, Current current) {
         System.out.println("\n-> Update received...");
         // System.out.println("Observer thread: " + Thread.currentThread().getId());
-        sorterI.setRunning(running);
+        sorterI.updateRunning(running);
     }
 
     // @Override

@@ -5,8 +5,8 @@ import clientManager.ConnectionManagerI;
 import clientManager.ResponseManagerI;
 import sorterMaster.ContentManager;
 import sorterMaster.DistSorterI;
-import sorterMaster.SubjectI;
 import sorterPool.SorterManagerI;
+import sortingStatus.SubjectI;
 
 public class Server {
 

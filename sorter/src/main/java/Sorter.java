@@ -4,8 +4,8 @@ import java.util.List;
 import Services.ObserverPrx;
 import Services.SorterPrx;
 import fileAccessor.FileAccessor;
+import statusListener.ObserverI;
 import worker.Attacher;
-import worker.ObserverI;
 import worker.SorterI;
 
 public class Sorter {

@@ -15,6 +15,7 @@ import com.zeroc.Ice.Current;
 import Services.SorterPrx;
 import clientManager.ResponseManagerI;
 import sorterPool.SorterManagerI;
+import sortingStatus.SubjectI;
 
 public class DistSorterI implements Services.DistSorter {
 

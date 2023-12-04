@@ -24,11 +24,11 @@ public class SorterI implements Services.Sorter {
         this.fileAccessor = fileAccessor;
     }
 
-    public boolean isRunning() {
-        return running;
-    }
+    // public boolean isRunning() {
+    // return running;
+    // }
 
-    public void setRunning(boolean running) {
+    public void updateRunning(boolean running) {
         this.running = running;
         System.out.println("\nSorter running?: " + running);
     }
@@ -70,21 +70,21 @@ public class SorterI implements Services.Sorter {
 
     // private String sort(String s) {
 
-    //     String result = "";
+    // String result = "";
 
-    //     if (running) {
-    //         // System.out.println("\nFile content received from Server");
-    //         System.out.println("\nSorting file content...\n");
+    // if (running) {
+    // // System.out.println("\nFile content received from Server");
+    // System.out.println("\nSorting file content...\n");
 
-    //         String[] lines = s.split("\n");
+    // String[] lines = s.split("\n");
 
-    //         // Sort the array of lines alphabetically
-    //         Arrays.sort(lines);
+    // // Sort the array of lines alphabetically
+    // Arrays.sort(lines);
 
-    //         // Join the sorted lines into a single string with newline separation
-    //         result = String.join("\n", lines);
-    //     }
-    //     return result;
+    // // Join the sorted lines into a single string with newline separation
+    // result = String.join("\n", lines);
+    // }
+    // return result;
     // }
 
     private class SortTask extends RecursiveTask<String> {
