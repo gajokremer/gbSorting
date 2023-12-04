@@ -41,7 +41,7 @@ public class SorterI implements Services.Sorter {
     // }
 
     @Override
-    public void receiveTaskRange(String dataPath, int start, int end, long sorterId, Current current) {
+    public void receiveTask(String dataPath, int start, int end, long sorterId, Current current) {
         if (!running) {
             System.out.println("\n-> Task cannot be processed. Application is not running.");
             return;

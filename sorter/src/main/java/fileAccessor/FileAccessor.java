@@ -9,12 +9,12 @@ import java.io.IOException;
 
 public class FileAccessor {
 
-    public String readContent(String path, int start, int end) {
+    public String readContent(String filePath, int start, int end) {
         System.out.println("\nReading file content...\n");
 
         StringBuilder contentBuilder = new StringBuilder();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             int currentLine = 1;
             String line;
 
@@ -33,10 +33,10 @@ public class FileAccessor {
         return contentBuilder.toString();
     }
 
-    public void createOutputFile(String path, String fileName) {
+    public void createOutputFile(String outputPath, String fileName) {
         try {
             // File object representing the desired file
-            File outputFile = new File(path, fileName);
+            File outputFile = new File(outputPath, fileName);
 
             // Remove the file if it exists
             if (outputFile.exists()) {

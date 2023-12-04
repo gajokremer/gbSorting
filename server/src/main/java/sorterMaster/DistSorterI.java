@@ -84,7 +84,7 @@ public class DistSorterI implements Services.DistSorter {
                     int start = Integer.parseInt(task.split(";")[0]);
                     int end = Integer.parseInt(task.split(";")[1]);
                     SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
-                    sorterProxy.receiveTaskRange(dataPath, start, end, sorterId);
+                    sorterProxy.receiveTask(dataPath, start, end, sorterId);
                     return null;
                 };
 
