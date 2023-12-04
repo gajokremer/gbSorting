@@ -15,8 +15,8 @@ public class ResponseReceiverI implements Services.ResponseReceiver {
 
     @Override
     public void receiveResponse(String response, Current current) {
-        // System.out.println("\n" + response);
-        writeToFile(response);
+        System.out.println("\n" + response);
+        // writeToFile(response);
     }
 
     private void writeToFile(String content) {

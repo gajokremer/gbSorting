@@ -54,6 +54,7 @@ public class SubjectI implements Services.Subject {
 
     @Override
     public void detach(long id, Current current) {
+        workerCount--;
         synchronized (this) {
             remove(id);
         }

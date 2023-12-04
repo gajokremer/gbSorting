@@ -29,6 +29,7 @@ public class InputReader {
         while (true) {
             System.out.print("\n-> ");
             String input = sc.nextLine();
+            System.out.println("\nWaiting for response...\n");
 
             if (input.startsWith(";")) {
                 // String[] parts = input.split(";");
@@ -44,7 +45,7 @@ public class InputReader {
                 long startTime = System.currentTimeMillis();
 
                 String result = distSorterProxy.distSort(clientId, dataPath);
-                System.out.println("\n" + result + "\n");
+                System.out.println("\nSERVER -> " + result);
 
                 long endTime = System.currentTimeMillis();
 

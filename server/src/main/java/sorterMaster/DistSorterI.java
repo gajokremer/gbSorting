@@ -26,7 +26,8 @@ public class DistSorterI implements Services.DistSorter {
     private Queue<String> tasks = new LinkedList<>();
     // private List<String> globalResults = new ArrayList<>();
 
-    private ExecutorService masterThreadPool = Executors.newFixedThreadPool(10);
+    // private ExecutorService masterThreadPool = Executors.newFixedThreadPool(10);
+    private ExecutorService masterThreadPool;
 
     public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, SubjectI subjectI,
             ContentManager contentManager) {
@@ -39,7 +40,7 @@ public class DistSorterI implements Services.DistSorter {
 
     @Override
     public String distSort(long id, String dataPath, Current current) {
-        System.out.println("\nFile read request received from Client '" + id + "' -> " + "'" + dataPath + "'");
+        System.out.println("\nSorting request received from Client '" + id + "' -> " + "'" + dataPath + "'");
 
         // contentManager.createOutputFile("/opt/share/gb/", "output.txt");
 
@@ -69,6 +70,8 @@ public class DistSorterI implements Services.DistSorter {
             // counter++;
             // sorterProxy.receiveTaskRange(dataPath, start, end, counter);
             // }
+
+            masterThreadPool = Executors.newFixedThreadPool(workerCount);
 
             List<Callable<Void>> sortingTasks = new ArrayList<>();
 
@@ -112,13 +115,16 @@ public class DistSorterI implements Services.DistSorter {
                 System.out.println("Error merging sorted chunks: " + e.getMessage());
             }
 
-        } else {
-            // String content = contentManager.readAllLines(dataPath);
-            // String sortedContent = sort(content);
-            // contentManager.overWriteFile(dataPath, sortedContent);
+            return "Result processed successfully!";
+
+        } else if (workerCount == 1) {
+            System.out.println("\nOnly one worker available. Processing request...");
+            SorterPrx sorterProxy = subjectI.getSorterProxies().get(1L);
+            sorterProxy.receiveTaskRange(dataPath, 0, totalLines, 1L);
+            return "Result processed successfully!";
         }
 
-        return "SERVER -> Result processed successfully!";
+        return "Not enough workers to process the request.";
     }
 
     private void launchWorkers() {
