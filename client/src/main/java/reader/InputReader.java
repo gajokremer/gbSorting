@@ -44,9 +44,9 @@ public class InputReader {
 
                 long startTime = System.currentTimeMillis();
 
-                // distSorterProxy.distSort(clientId, dataPath);
-                String result = distSorterProxy.distSort(clientId, dataPath);
-                System.out.println("\nSERVER -> " + result);
+                distSorterProxy.distSort(clientId, dataPath);
+                // String result = distSorterProxy.distSort(clientId, dataPath);
+                // System.out.println("\nSERVER -> " + result);
 
                 long endTime = System.currentTimeMillis();
 

@@ -11,8 +11,8 @@ scp server/build/libs/server.jar swarch@xhgrid5:/home/swarch/gb # 10.147.19.112
 scp sorter/build/libs/sorter.jar swarch@xhgrid7:/home/swarch/gb # 10.147.19.139
 scp sorter/build/libs/sorter.jar swarch@xhgrid8:/home/swarch/gb # 10.147.19.137
 scp sorter/build/libs/sorter.jar swarch@xhgrid9:/home/swarch/gb # 10.147.19.147
-# scp sorter/build/libs/sorter.jar swarch@xhgrid10:/home/swarch/gb # 10.147.19.138
+## scp sorter/build/libs/sorter.jar swarch@xhgrid10:/home/swarch/gb # 10.147.19.138
 scp sorter/build/libs/sorter.jar swarch@xhgrid11:/home/swarch/gb # 10.147.19.5
 scp sorter/build/libs/sorter.jar swarch@xhgrid13:/home/swarch/gb # 10.147.19.135
-# scp sorter/build/libs/sorter.jar swarch@xhgrid14:/home/swarch/gb # 10.147.19.56
+## scp sorter/build/libs/sorter.jar swarch@xhgrid14:/home/swarch/gb # 10.147.19.56
 scp sorter/build/libs/sorter.jar swarch@xhgrid15:/home/swarch/gb # 10.147.19.20

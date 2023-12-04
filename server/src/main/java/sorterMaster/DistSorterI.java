@@ -31,6 +31,8 @@ public class DistSorterI implements Services.DistSorter {
     // private ExecutorService masterThreadPool = Executors.newFixedThreadPool(10);
     private ExecutorService masterThreadPool;
 
+    private final long LINE_LIMIT = 1200000;
+
     public DistSorterI(ResponseManagerI responseManager, SorterManagerI sorterManager, SubjectI subjectI,
             ContentManager contentManager) {
         this.responseManager = responseManager;
@@ -41,9 +43,10 @@ public class DistSorterI implements Services.DistSorter {
     }
 
     @Override
-    public String distSort(long id, String dataPath, Current current) {
+    // public String distSort(long id, String dataPath, Current current) {
+    public void distSort(long id, String dataPath, Current current) {
         System.out.println("\nSorting request received from Client '" + id + "' -> " + "'" + dataPath + "'");
-        // String response = "";
+        String response = "";
 
         // contentManager.createOutputFile("/opt/share/gb/", "output.txt");
 
@@ -51,7 +54,8 @@ public class DistSorterI implements Services.DistSorter {
         int workerCount = subjectI.getWorkerCount();
         // int sorterCount = 3;
 
-        if (workerCount > 1) {
+        // if (workerCount > 1) {
+        if (totalLines > LINE_LIMIT && workerCount > 1) {
             int[][] ranges = contentManager.calculateRanges(totalLines, workerCount);
 
             for (int[] range : ranges) {
@@ -118,11 +122,12 @@ public class DistSorterI implements Services.DistSorter {
                 System.out.println("Error merging sorted chunks: " + e.getMessage());
             }
 
-            return "Content sorted successfully!";
-            // response = "Result processed successfully!";
-        } else if (workerCount <= 1) {
+            // return "Content sorted successfully!";
+            response = "Result processed successfully!";
+
+        } else if (workerCount <= 1 && totalLines < LINE_LIMIT) {
             // sort on server
-            System.out.println("\nNo Sorters deployed. Sorting file monolithically...");
+            System.out.println("\nSorting file monolithically...");
 
             String fileName = "finalOutput.txt";
             String targetPath = "/opt/share/gb/";
@@ -139,10 +144,16 @@ public class DistSorterI implements Services.DistSorter {
             System.out.println("\nSorting execution time: " + executionTime + "ms" + " (" + timeInSeconds + "s)\n");
 
             contentManager.writeToFile(targetPath.concat(fileName), orderedContent);
-            return "Content sorted successfully!";
+
+            response = "Content sorted successfully!";
+            // return "Content sorted successfully!";
+        } else {
+            // return "Not enough workers to process the request.";
+            response = "Unable to process request.";
         }
 
-        return "Not enough workers to process the request.";
+        // return "Not enough workers to process the request.";
+        responseManager.respondToClient(id, response, current);
     }
 
     private void launchWorkers() {
