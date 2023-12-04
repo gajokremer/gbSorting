@@ -1,6 +1,7 @@
 package sorterMaster;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -41,6 +42,7 @@ public class DistSorterI implements Services.DistSorter {
     @Override
     public String distSort(long id, String dataPath, Current current) {
         System.out.println("\nSorting request received from Client '" + id + "' -> " + "'" + dataPath + "'");
+        // String response = "";
 
         // contentManager.createOutputFile("/opt/share/gb/", "output.txt");
 
@@ -104,8 +106,8 @@ public class DistSorterI implements Services.DistSorter {
             shutDownWorkers();
             System.out.println("\nRemaining tasks: " + tasks.size());
 
-            String targetPath = "/opt/share/gb/";
             String fileName = "finalOutput.txt";
+            String targetPath = "/opt/share/gb/";
             // contentManager.createOutputFile(targetPath, fileName);
             // contentManager.combineFiles(fileName, targetPath, "/opt/share/gb/outputs/");
 
@@ -115,13 +117,28 @@ public class DistSorterI implements Services.DistSorter {
                 System.out.println("Error merging sorted chunks: " + e.getMessage());
             }
 
-            return "Result processed successfully!";
+            return "Content sorted successfully!";
+            // response = "Result processed successfully!";
+        } else if (workerCount <= 1) {
+            // sort on server
+            System.out.println("\nNo Sorters deployed. Sorting file monolithically...");
 
-        } else if (workerCount == 1) {
-            System.out.println("\nOnly one worker available. Processing request...");
-            SorterPrx sorterProxy = subjectI.getSorterProxies().get(1L);
-            sorterProxy.receiveTaskRange(dataPath, 0, totalLines, 1L);
-            return "Result processed successfully!";
+            String fileName = "finalOutput.txt";
+            String targetPath = "/opt/share/gb/";
+
+            contentManager.createOutputFile(targetPath, fileName);
+
+            long start = System.currentTimeMillis();
+
+            String orderedContent = sort(contentManager.readAllLines(dataPath));
+
+            long end = System.currentTimeMillis();
+            long executionTime = end - start;
+            long timeInSeconds = executionTime / 1000;
+            System.out.println("\nSorting execution time: " + executionTime + "ms" + " (" + timeInSeconds + "s)\n");
+
+            contentManager.writeToFile(targetPath.concat(fileName), orderedContent);
+            return "Content sorted successfully!";
         }
 
         return "Not enough workers to process the request.";
@@ -145,23 +162,23 @@ public class DistSorterI implements Services.DistSorter {
 
     //
 
-    // private String sort(String s) {
-    // System.out.println("\nSorting file content from Server...");
+    private String sort(String s) {
+        // System.out.println("\nSorting file content from Server...");
 
-    // String[] lines = s.split("\n");
+        String[] lines = s.split("\n");
 
-    // // Sort the array of lines alphabetically
-    // Arrays.sort(lines);
+        // Sort the array of lines alphabetically
+        Arrays.sort(lines);
 
-    // // Join the sorted lines into a single string with newline separation
-    // String result = String.join("\n", lines);
+        // Join the sorted lines into a single string with newline separation
+        String result = String.join("\n", lines);
 
-    // // Write the sorted result to the output.txt file
-    // // writeToFile(result);
+        // Write the sorted result to the output.txt file
+        // writeToFile(result);
 
-    // // return "Result processed successfully!";
-    // return result;
-    // }
+        // return "Result processed successfully!";
+        return result;
+    }
 
     // private String[] divide(String[] lines, int parts) {
 

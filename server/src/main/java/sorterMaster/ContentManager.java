@@ -26,25 +26,25 @@ public class ContentManager {
         return lineCount;
     }
 
-    // public String readAllLines(String path) {
-    //     System.out.println("\nReading file content...\n");
+    public String readAllLines(String path) {
+        System.out.println("\nReading file content...");
 
-    //     StringBuilder contentBuilder = new StringBuilder();
+        StringBuilder contentBuilder = new StringBuilder();
 
-    //     try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-    //         String line;
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
 
-    //         while ((line = reader.readLine()) != null) {
-    //             contentBuilder.append(line).append("\n");
-    //         }
-    //     } catch (IOException e) {
-    //         e.printStackTrace(); // Handle the exception according to your needs
-    //     }
+            while ((line = reader.readLine()) != null) {
+                contentBuilder.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the exception according to your needs
+        }
 
-    //     System.out.println("-> File content read successfully.");
+        System.out.println("-> File content read successfully.");
 
-    //     return contentBuilder.toString();
-    // }
+        return contentBuilder.toString();
+    }
 
     public int[][] calculateRanges(int totalLines, int parts) {
         if (totalLines <= 0 || parts <= 0) {
@@ -124,98 +124,95 @@ public class ContentManager {
         }
     }
 
-    // public void createOutputFile(String targetPath, String fileName) {
-    // try {
-    // // File object representing the desired file
-    // File outputFile = new File(targetPath, fileName);
+    public void createOutputFile(String targetPath, String fileName) {
+        try {
+            // File object representing the desired file
+            File outputFile = new File(targetPath, fileName);
 
-    // // Remove the file if it exists
-    // if (outputFile.exists()) {
-    // boolean deleted = outputFile.delete();
-    // if (!deleted) {
-    // System.out.println("Failed to delete existing file.");
-    // return;
-    // }
-    // }
+            // Remove the file if it exists
+            if (outputFile.exists()) {
+                boolean deleted = outputFile.delete();
+                if (!deleted) {
+                    System.out.println("Failed to delete existing file.");
+                    return;
+                }
+            }
 
-    // // Command to create an empty file in the specified path
-    // String command = "touch " + outputFile.getAbsolutePath(); // For Unix-like
-    // environments
+            // Command to create an empty file in the specified path
+            String command = "touch " + outputFile.getAbsolutePath(); // For Unix-like environments
 
-    // // Create ProcessBuilder
-    // ProcessBuilder processBuilder = new ProcessBuilder(command.split("\\s+"));
+            // Create ProcessBuilder
+            ProcessBuilder processBuilder = new ProcessBuilder(command.split("\\s+"));
 
-    // // Redirect error stream to output stream
-    // processBuilder.redirectErrorStream(true);
+            // Redirect error stream to output stream
+            processBuilder.redirectErrorStream(true);
 
-    // // Start the process
-    // Process process = processBuilder.start();
+            // Start the process
+            Process process = processBuilder.start();
 
-    // // Wait for the process to finish
-    // int exitCode = process.waitFor();
+            // Wait for the process to finish
+            int exitCode = process.waitFor();
 
-    // // Check if the process exited successfully
-    // if (exitCode == 0) {
-    // System.out.println("\nOutput file created successfully!");
-    // System.out.println("-> '" + outputFile.getAbsolutePath() + "'");
-    // } else {
-    // System.out.println("\nError creating the output file. Exit code: " +
-    // exitCode);
-    // }
+            // Check if the process exited successfully
+            if (exitCode == 0) {
+                System.out.println("\nOutput file created successfully!");
+                System.out.println("-> '" + outputFile.getAbsolutePath() + "'");
+            } else {
+                System.out.println("\nError creating the output file. Exit code: " +
+                        exitCode);
+            }
 
-    // } catch (IOException | InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     // void combineFiles(String fileName, String targetPath, String filesPath) {
-    // Path targetFilePath = Paths.get(targetPath, fileName);
+    //     Path targetFilePath = Paths.get(targetPath, fileName);
 
-    // try {
-    // try (DirectoryStream<Path> directoryStream =
-    // Files.newDirectoryStream(Paths.get(filesPath))) {
-    // for (Path filePath : directoryStream) {
-    // byte[] fileContent = Files.readAllBytes(filePath);
-    // Files.write(targetFilePath, fileContent, StandardOpenOption.APPEND);
+    //     try {
+    //         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(filesPath))) {
+    //             for (Path filePath : directoryStream) {
+    //                 byte[] fileContent = Files.readAllBytes(filePath);
+    //                 Files.write(targetFilePath, fileContent, StandardOpenOption.APPEND);
 
-    // // Add a newline after writing the file content
-    // Files.write(targetFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
+    //                 // Add a newline after writing the file content
+    //                 Files.write(targetFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
 
-    // // Delete the file after its content is appended to the target file
-    // Files.delete(filePath);
+    //                 // Delete the file after its content is appended to the target file
+    //                 Files.delete(filePath);
+    //             }
+    //         }
+
+    //         System.out.println("Files combined and deleted successfully!");
+
+    //     } catch (IOException e) {
+    //         System.err.println("Error combining files: " + e.getMessage());
+    //     }
     // }
-    // }
 
-    // System.out.println("Files combined and deleted successfully!");
+    public void writeToFile(String filePath, String content) {
+        // Specify the path to the output.txt file
 
-    // } catch (IOException e) {
-    // System.err.println("Error combining files: " + e.getMessage());
-    // }
-    // }
-
-    // public void writeToFile(String filePath, String content) {
-    // // Specify the path to the output.txt file
-
-    // try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-    // // writer.write(content);
-    // writer.write(content + "\n");
-    // System.out.println("\nResult written to '" + filePath + "'.");
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
-    // }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            // writer.write(content);
+            writer.write(content + "\n");
+            System.out.println("\n-> Result written to '" + filePath + "'.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     // public void overWriteFile(String filePath, String content) {
-    // // Specify the path to the output.txt file
+    //     // Specify the path to the output.txt file
 
-    // try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,
-    // false))) {
-    // // The second parameter (false) specifies that the file should be overwritten
-    // writer.write(content);
-    // System.out.println("\n-> Content on '" + filePath + "' overwritten
-    // successfully.");
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
+    //     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,
+    //             false))) {
+    //         // The second parameter (false) specifies that the file should be overwritten
+    //         writer.write(content);
+    //         System.out.println("\n-> Content on '" + filePath + "' overwritten successfully.");
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
     // }
 }

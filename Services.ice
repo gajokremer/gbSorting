@@ -13,14 +13,6 @@ module Services {
     interface SorterManager;
     interface ForkJoinMaster;
 
-    interface ForkJoinTaskInterface {
-        void compute();
-    }
-
-    struct ForkJoinTaskClass {
-        int a;
-    }
-
     // Server
 
     interface DistSorter {
@@ -45,10 +37,6 @@ module Services {
         void detach(long id);
         //void notifyAll(string s);
         bool getRunning();
-    }
-    interface ForkJoinMaster {
-        //void invoke(ForkJoinTaskClass task);
-        void invoke(ForkJoinTaskInterface* task);
     }
 
     // Client

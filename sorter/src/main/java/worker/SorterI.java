@@ -68,24 +68,24 @@ public class SorterI implements Services.Sorter {
         fileAccessor.writeToFile(outputFileLocation.concat(outputFileName), sortedContent);
     }
 
-    private String sort(String s) {
+    // private String sort(String s) {
 
-        String result = "";
+    //     String result = "";
 
-        if (running) {
-            // System.out.println("\nFile content received from Server");
-            System.out.println("\nSorting file content...\n");
+    //     if (running) {
+    //         // System.out.println("\nFile content received from Server");
+    //         System.out.println("\nSorting file content...\n");
 
-            String[] lines = s.split("\n");
+    //         String[] lines = s.split("\n");
 
-            // Sort the array of lines alphabetically
-            Arrays.sort(lines);
+    //         // Sort the array of lines alphabetically
+    //         Arrays.sort(lines);
 
-            // Join the sorted lines into a single string with newline separation
-            result = String.join("\n", lines);
-        }
-        return result;
-    }
+    //         // Join the sorted lines into a single string with newline separation
+    //         result = String.join("\n", lines);
+    //     }
+    //     return result;
+    // }
 
     private class SortTask extends RecursiveTask<String> {
         private String str;
