@@ -6,8 +6,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ContentManager {
     public int countFileLines(String filePath) {
@@ -79,14 +85,43 @@ public class ContentManager {
         try {
             // Initialize BufferedReaders for each file and add the first line of each file
             // to the queue
+            // for (int i = 0; i < files.length; i++) {
+            // if (files[i].isFile()) {
+            // readers[i] = new BufferedReader(new FileReader(files[i]));
+            // String line = readers[i].readLine();
+            // if (line != null) {
+            // queue.add(new String[] { line, String.valueOf(i) });
+            // }
+            // }
+            // }
+
+            List<Callable<Void>> tasks = new ArrayList<>();
+            ExecutorService writingPool = Executors.newFixedThreadPool(10);
+
             for (int i = 0; i < files.length; i++) {
-                if (files[i].isFile()) {
-                    readers[i] = new BufferedReader(new FileReader(files[i]));
-                    String line = readers[i].readLine();
-                    if (line != null) {
-                        queue.add(new String[] { line, String.valueOf(i) });
+                final int index = i; // Create a final variable for use in the lambda
+                Callable<Void> readingTask = () -> {
+                    if (files[index].isFile()) {
+                        readers[index] = new BufferedReader(new FileReader(files[index]));
+                        String line = readers[index].readLine();
+                        if (line != null) {
+                            synchronized (queue) {
+                                queue.add(new String[] { line, String.valueOf(index) });
+                            }
+                        }
                     }
+                    return null;
+                };
+                tasks.add(readingTask);
+            }
+
+            try {
+                List<Future<Void>> futures = writingPool.invokeAll(tasks);
+                for (Future<Void> future : futures) {
+                    future.get();
                 }
+            } catch (Exception e) {
+                System.out.println("Error executing reading tasks: " + e.getMessage());
             }
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(finalOutputFile));
@@ -168,27 +203,28 @@ public class ContentManager {
     }
 
     // void combineFiles(String fileName, String targetPath, String filesPath) {
-    //     Path targetFilePath = Paths.get(targetPath, fileName);
+    // Path targetFilePath = Paths.get(targetPath, fileName);
 
-    //     try {
-    //         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(filesPath))) {
-    //             for (Path filePath : directoryStream) {
-    //                 byte[] fileContent = Files.readAllBytes(filePath);
-    //                 Files.write(targetFilePath, fileContent, StandardOpenOption.APPEND);
+    // try {
+    // try (DirectoryStream<Path> directoryStream =
+    // Files.newDirectoryStream(Paths.get(filesPath))) {
+    // for (Path filePath : directoryStream) {
+    // byte[] fileContent = Files.readAllBytes(filePath);
+    // Files.write(targetFilePath, fileContent, StandardOpenOption.APPEND);
 
-    //                 // Add a newline after writing the file content
-    //                 Files.write(targetFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
+    // // Add a newline after writing the file content
+    // Files.write(targetFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
 
-    //                 // Delete the file after its content is appended to the target file
-    //                 Files.delete(filePath);
-    //             }
-    //         }
+    // // Delete the file after its content is appended to the target file
+    // Files.delete(filePath);
+    // }
+    // }
 
-    //         System.out.println("Files combined and deleted successfully!");
+    // System.out.println("Files combined and deleted successfully!");
 
-    //     } catch (IOException e) {
-    //         System.err.println("Error combining files: " + e.getMessage());
-    //     }
+    // } catch (IOException e) {
+    // System.err.println("Error combining files: " + e.getMessage());
+    // }
     // }
 
     public void writeToFile(String filePath, String content) {
@@ -204,15 +240,16 @@ public class ContentManager {
     }
 
     // public void overWriteFile(String filePath, String content) {
-    //     // Specify the path to the output.txt file
+    // // Specify the path to the output.txt file
 
-    //     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,
-    //             false))) {
-    //         // The second parameter (false) specifies that the file should be overwritten
-    //         writer.write(content);
-    //         System.out.println("\n-> Content on '" + filePath + "' overwritten successfully.");
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
+    // try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,
+    // false))) {
+    // // The second parameter (false) specifies that the file should be overwritten
+    // writer.write(content);
+    // System.out.println("\n-> Content on '" + filePath + "' overwritten
+    // successfully.");
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
     // }
 }

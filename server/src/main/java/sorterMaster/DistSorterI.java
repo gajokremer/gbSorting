@@ -52,10 +52,10 @@ public class DistSorterI implements Services.DistSorter {
 
         int totalLines = contentManager.countFileLines(dataPath);
         int workerCount = subjectI.getWorkerCount();
-        // int sorterCount = 3;
 
         // if (workerCount > 1) {
         if (totalLines > LINE_LIMIT && workerCount > 1) {
+            System.out.println("\n-> Sorting file in distributed mode...");
             int[][] ranges = contentManager.calculateRanges(totalLines, workerCount);
 
             for (int[] range : ranges) {
@@ -78,35 +78,7 @@ public class DistSorterI implements Services.DistSorter {
             // sorterProxy.receiveTaskRange(dataPath, start, end, counter);
             // }
 
-            masterThreadPool = Executors.newFixedThreadPool(workerCount);
-
-            List<Callable<Void>> sortingTasks = new ArrayList<>();
-
-            for (Long sorterId : subjectI.getSorterProxies().keySet()) {
-                String task = tasks.remove();
-                // Runnable sortingTask = () -> {
-                Callable<Void> sortingTask = () -> {
-                    int start = Integer.parseInt(task.split(";")[0]);
-                    int end = Integer.parseInt(task.split(";")[1]);
-                    SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
-                    sorterProxy.receiveTask(dataPath, start, end, sorterId);
-                    return null;
-                };
-
-                // masterThreadPool.execute(sortingTask);
-                sortingTasks.add(sortingTask);
-            }
-
-            try {
-                List<Future<Void>> futures = masterThreadPool.invokeAll(sortingTasks);
-
-                for (Future<Void> future : futures) {
-                    future.get();
-                }
-                System.out.println("-> All tasks executed successfully.");
-            } catch (Exception e) {
-                System.out.println("Error executing sorting tasks: " + e.getMessage());
-            }
+            distributeTasks(dataPath, workerCount);
 
             shutDownWorkers();
             System.out.println("\nRemaining tasks: " + tasks.size());
@@ -116,18 +88,25 @@ public class DistSorterI implements Services.DistSorter {
             // contentManager.createOutputFile(targetPath, fileName);
             // contentManager.combineFiles(fileName, targetPath, "/opt/share/gb/outputs/");
 
+            long start = System.currentTimeMillis();
+
             try {
                 contentManager.mergeSortedChunks("/opt/share/gb/outputs/", targetPath.concat(fileName));
             } catch (IOException e) {
                 System.out.println("Error merging sorted chunks: " + e.getMessage());
             }
 
+            long end = System.currentTimeMillis();
+            long mergingTime = end - start;
+            long timeInSeconds = mergingTime / 1000;
+            System.out.println("\nMerging execution time: " + mergingTime + "ms" + " (" + timeInSeconds + "s)\n");
+
             // return "Content sorted successfully!";
             response = "Result processed successfully!";
 
-        } else if (workerCount <= 1 && totalLines < LINE_LIMIT) {
+        } else if (workerCount <= 1 || totalLines < LINE_LIMIT) {
             // sort on server
-            System.out.println("\nSorting file monolithically...");
+            System.out.println("\n-> Sorting file monolithically...");
 
             String fileName = "finalOutput.txt";
             String targetPath = "/opt/share/gb/";
@@ -154,6 +133,38 @@ public class DistSorterI implements Services.DistSorter {
 
         // return "Not enough workers to process the request.";
         responseManager.respondToClient(id, response, current);
+    }
+
+    private void distributeTasks(String dataPath, int workerCount) {
+        masterThreadPool = Executors.newFixedThreadPool(workerCount);
+
+        List<Callable<Void>> sortingTasks = new ArrayList<>();
+
+        for (Long sorterId : subjectI.getSorterProxies().keySet()) {
+            String task = tasks.remove();
+            // Runnable sortingTask = () -> {
+            Callable<Void> sortingTask = () -> {
+                int start = Integer.parseInt(task.split(";")[0]);
+                int end = Integer.parseInt(task.split(";")[1]);
+                SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
+                sorterProxy.receiveTask(dataPath, start, end, sorterId);
+                return null;
+            };
+
+            // masterThreadPool.execute(sortingTask);
+            sortingTasks.add(sortingTask);
+        }
+
+        try {
+            List<Future<Void>> futures = masterThreadPool.invokeAll(sortingTasks);
+
+            for (Future<Void> future : futures) {
+                future.get();
+            }
+            System.out.println("-> All tasks executed successfully.");
+        } catch (Exception e) {
+            System.out.println("Error executing sorting tasks: " + e.getMessage());
+        }
     }
 
     private void launchWorkers() {

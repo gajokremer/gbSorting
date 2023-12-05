@@ -47,29 +47,38 @@ public class SorterI implements Services.Sorter {
             return;
         }
 
-        String content = fileAccessor.readContent(dataPath, start, end);
+        String outputFileLocation = "/opt/share/gb/outputs/";
+        String outputFileName = "output" + sorterId + ".txt";
+        fileAccessor.createOutputFile(outputFileLocation, outputFileName);
+
+        // String content = fileAccessor.readContent(dataPath, start, end);
+        // System.out.println("\nRead content from " + start + " to " + end + ": "
+        // + content.split("\n").length + " lines");
+
+        String[] content = fileAccessor.readContent1(dataPath, start, end);
         System.out.println("\nRead content from " + start + " to " + end + ": "
-                + content.split("\n").length + " lines");
+                + content.length + " lines");
+
         // System.out.println("\nSorter Content: \n{" + content+"}");
 
         long startTime = System.currentTimeMillis();
 
+        // String[] sortedContent = sort1(content);
         // String sortedContent = sort(content);
-        String sortedContent = forkJoinSort(content);
+        String[] sortedContent = forkJoinSort(content);
 
         long endTime = System.currentTimeMillis();
         long executionTime = endTime - startTime;
         long timeInSeconds = executionTime / 1000;
         System.out.println("\nSorting execution time: " + executionTime + "ms" + " (" + timeInSeconds + "s)\n");
 
-        String outputFileLocation = "/opt/share/gb/outputs/";
-        String outputFileName = "output" + sorterId + ".txt";
-        fileAccessor.createOutputFile(outputFileLocation, outputFileName);
+        // fileAccessor.writeToFile(outputFileLocation.concat(outputFileName),
+        // sortedContent);
         fileAccessor.writeToFile(outputFileLocation.concat(outputFileName), sortedContent);
     }
 
     // private String sort(String s) {
-
+    // // private String sort(String s, String filePath) {
     // String result = "";
 
     // if (running) {
@@ -84,58 +93,69 @@ public class SorterI implements Services.Sorter {
     // // Join the sorted lines into a single string with newline separation
     // result = String.join("\n", lines);
     // }
+
     // return result;
     // }
 
-    private class SortTask extends RecursiveTask<String> {
-        private String str;
+    private String[] sort1(String[] lines) {
+        // Sort the array of lines alphabetically
+        Arrays.sort(lines);
+
+        return lines;
+    }
+
+    private class SortTask extends RecursiveTask<String[]> {
+        private String[] array;
         private static final int THRESHOLD = 2000000; // You can adjust this value
 
-        SortTask(String str) {
-            this.str = str;
+        SortTask(String[] array) {
+            this.array = array;
         }
 
         @Override
-        protected String compute() {
-            if (str.length() <= THRESHOLD) {
-                // Directly sort small strings
-                String[] lines = str.split("\n");
-                Arrays.sort(lines);
-                return String.join("\n", lines);
+        protected String[] compute() {
+            if (array.length <= THRESHOLD) {
+                Arrays.sort(array);
+                return array;
             } else {
-                // Split the task
-                int mid = str.length() / 2;
-                SortTask left = new SortTask(str.substring(0, mid));
-                SortTask right = new SortTask(str.substring(mid));
+                int mid = array.length / 2;
+                SortTask left = new SortTask(Arrays.copyOfRange(array, 0, mid));
+                SortTask right = new SortTask(Arrays.copyOfRange(array, mid, array.length));
 
-                left.fork(); // asynchronously execute the left task
-                String rightResult = right.compute(); // compute right part
-                String leftResult = left.join(); // wait and retrieve the result of the left part
+                left.fork();
+                String[] rightResult = right.compute();
+                String[] leftResult = left.join();
 
-                return merge(leftResult, rightResult); // merge the sorted strings
+                return merge(leftResult, rightResult);
             }
         }
 
-        private String merge(String left, String right) {
-            // Simple merging of two sorted strings
-            StringBuilder result = new StringBuilder();
-            int i = 0, j = 0;
-            while (i < left.length() && j < right.length()) {
-                if (left.charAt(i) <= right.charAt(j)) {
-                    result.append(left.charAt(i++));
+        private String[] merge(String[] left, String[] right) {
+            String[] result = new String[left.length + right.length];
+            int i = 0, j = 0, k = 0;
+
+            while (i < left.length && j < right.length) {
+                if (left[i].compareTo(right[j]) <= 0) {
+                    result[k++] = left[i++];
                 } else {
-                    result.append(right.charAt(j++));
+                    result[k++] = right[j++];
                 }
             }
-            result.append(left.substring(i));
-            result.append(right.substring(j));
-            return result.toString();
+
+            while (i < left.length) {
+                result[k++] = left[i++];
+            }
+            while (j < right.length) {
+                result[k++] = right[j++];
+            }
+
+            return result;
         }
     }
 
-    public String forkJoinSort(String str) {
+    public String[] forkJoinSort(String[] lines) {
         ForkJoinPool pool = new ForkJoinPool();
-        SortTask task = new SortTask(str);
+        SortTask task = new SortTask(lines);
         return pool.invoke(task);
     }
 }

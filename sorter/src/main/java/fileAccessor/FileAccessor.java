@@ -33,6 +33,34 @@ public class FileAccessor {
         return contentBuilder.toString();
     }
 
+    public String[] readContent1(String filePath, int start, int end) {
+        System.out.println("\nReading file content...\n");
+
+        // List<String> contentList = new ArrayList<>();
+        String[] contentList = new String[end - start + 1];
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            int currentLine = 1;
+            String line;
+
+            while ((line = reader.readLine()) != null && currentLine <= end) {
+                if (currentLine >= start) {
+                    // contentList.add(line);
+                    contentList[currentLine - start] = line;
+                }
+                currentLine++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the exception according to your needs
+        }
+
+        System.out.println("-> File content read successfully.");
+
+        // Convert the list to an array
+        // return contentList.toArray(new String[0]);
+        return contentList;
+    }
+
     public void createOutputFile(String outputPath, String fileName) {
         try {
             // File object representing the desired file
@@ -75,12 +103,26 @@ public class FileAccessor {
         }
     }
 
-    public void writeToFile(String filePath, String content) {
-        // Specify the path to the output.txt file
+    // public void writeToFile(String filePath, String content) {
+    //     // Specify the path to the output.txt file
 
+    //     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+    //         writer.write(content);
+    //         // writer.write(content + "\n");
+    //         System.out.println("\nResult written to '" + filePath + "'.");
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+    public void writeToFile(String filePath, String[] content) {
+        // Specify the path to the output.txt file
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            writer.write(content);
-            // writer.write(content + "\n");
+            for (String line : content) {
+                writer.write(line);
+                writer.newLine(); // Add a newline after each element in the array
+            }
+
             System.out.println("\nResult written to '" + filePath + "'.");
         } catch (IOException e) {
             e.printStackTrace();
