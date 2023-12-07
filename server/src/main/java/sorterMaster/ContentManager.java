@@ -52,25 +52,32 @@ public class ContentManager {
         return contentBuilder.toString();
     }
 
-    public int[][] calculateRanges(int totalLines, int parts) {
-        if (totalLines <= 0 || parts <= 0) {
+    public int[][] calculateRanges(int totalLines, int x) {
+        System.out.println("=> X: " + x);
+        System.out.println("=> Total lines: " + totalLines);
+
+        if (totalLines <= 0 || x <= 0) {
             throw new IllegalArgumentException("Total lines and parts must be positive integers.");
         }
 
-        int partLength = totalLines / parts;
-        int remainder = totalLines % parts;
-
-        int[][] result = new int[parts][2];
-        int startIdx = 1; // Start counting from 1
-
-        for (int i = 0; i < parts; i++) {
-            int endIdx = startIdx + partLength + (i < remainder ? 1 : 0) - 1; // Adjust the end index
-            result[i][0] = startIdx;
-            result[i][1] = endIdx;
-            startIdx = endIdx + 1; // Adjust the start index
+        if (totalLines < x) {
+            // If totalLines is less than x, return a matrix with a single array
+            int[][] singleRange = new int[][] { { 1, totalLines } };
+            return singleRange;
         }
 
-        return result;
+        int totalParts = totalLines / x + (totalLines % x == 0 ? 0 : 1);
+        int[][] ranges = new int[totalParts][2];
+        int startIndex = 1; // Start counting from 1
+
+        for (int i = 0; i < totalParts; i++) {
+            int endIndex = Math.min(startIndex + x - 1, totalLines); // Adjust the end index
+            ranges[i][0] = startIndex;
+            ranges[i][1] = endIndex;
+            startIndex = endIndex + 1; // Adjust the start index
+        }
+
+        return ranges;
     }
 
     public void mergeSortedChunks(String folderPath, String finalOutputFile) throws IOException {
