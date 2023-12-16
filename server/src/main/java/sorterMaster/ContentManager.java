@@ -53,8 +53,8 @@ public class ContentManager {
     }
 
     public int[][] calculateRanges(int totalLines, int x) {
-        System.out.println("=> X: " + x);
-        System.out.println("=> Total lines: " + totalLines);
+        // System.out.println("=> X: " + x);
+        // System.out.println("=> Total lines: " + totalLines);
 
         if (totalLines <= 0 || x <= 0) {
             throw new IllegalArgumentException("Total lines and parts must be positive integers.");

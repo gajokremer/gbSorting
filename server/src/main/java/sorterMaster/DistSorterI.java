@@ -73,11 +73,13 @@ public class DistSorterI implements Services.DistSorter {
             System.out.println("\nTotal lines: " + totalLines);
             System.out.println("\nInitial tasks: " + tasks.size());
             System.out.println("\nWorker count: " + workerCount);
-            launchWorkers();
+            // launchWorkers();
+            updateWorkers(true);
 
             distributeTasks(dataPath, workerCount);
 
-            shutDownWorkers();
+            // shutDownWorkers();
+            updateWorkers(false);
             System.out.println("\nRemaining tasks: " + tasks.size());
 
             String fileName = "finalOutput.txt";
@@ -130,12 +132,13 @@ public class DistSorterI implements Services.DistSorter {
         }
 
         // return "Not enough workers to process the request.";
+        System.out.println("\n-> Sorting done!");
         responseManager.respondToClient(id, response, current);
     }
 
     private void distributeTasks(String dataPath, int workerCount) {
         masterThreadPool = Executors.newFixedThreadPool(workerCount);
-        Queue<Callable<Void>> sortingTasks = new LinkedList<>();
+        Queue<Runnable> tasksToSend = new LinkedList<>();
         Map<Long, Boolean> sorterStatus = Collections.synchronizedMap(new HashMap<>());
 
         // Initialize sorterStatus with false
@@ -143,94 +146,105 @@ public class DistSorterI implements Services.DistSorter {
             sorterStatus.put(sorterId, false);
         }
 
+        System.out.println("\nSorters status: " + sorterStatus);
+
+        System.out.println();
         while (!tasks.isEmpty()) {
-            for (Long sorterId : subjectI.getSorterProxies().keySet()) {
-                synchronized (sorterStatus) {
-                    if (!sorterStatus.get(sorterId)) {
-                        if (tasks.isEmpty()) {
-                            break; // Break if no tasks are left
+            for (Long sorterId : sorterStatus.keySet()) {
+                if (!sorterStatus.get(sorterId)) {
+                    String task = tasks.remove();
+                    Runnable sortingTask = () -> {
+                        int start = Integer.parseInt(task.split(";")[0]);
+                        int end = Integer.parseInt(task.split(";")[1]);
+                        SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
+                        sorterProxy.receiveTask(dataPath, start, end, sorterId);
+                    };
+                    synchronized (sorterStatus) {
+                        sorterStatus.put(sorterId, true);
+                    }
+                    Future<?> result = masterThreadPool.submit(sortingTask);
+
+                    try {
+                        result.get();
+                        System.out.println(sorterId + " => " + "Task executed successfully!");
+                        synchronized (sorterStatus) {
+                            sorterStatus.put(sorterId, false);
                         }
-
-                        String task = tasks.remove();
-                        Callable<Void> sortingTask = () -> {
-                            int start = Integer.parseInt(task.split(";")[0]);
-                            int end = Integer.parseInt(task.split(";")[1]);
-                            SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
-                            sorterProxy.receiveTask(dataPath, start, end, sorterId);
-
-                            synchronized (sorterStatus) {
-                                sorterStatus.put(sorterId, false); // Set status to false after completion
-                            }
-                            return null;
-                        };
-
-                        sortingTasks.add(sortingTask);
-                        sorterStatus.put(sorterId, true); // Set status to true as task is assigned
-                        break; // Break to start the iteration again
+                    } catch (Exception e) {
+                        System.out.println("Error executing sorting tasks: " + e.getMessage());
                     }
                 }
+                // System.out.println(sorterId + " => " + tasks.remove());
             }
 
-            try {
-                List<Future<Void>> futures = masterThreadPool.invokeAll(sortingTasks);
-
-                for (Future<Void> future : futures) {
-                    future.get(); // This will wait for the task to complete
-                }
-                System.out.println("-> All tasks executed successfully.");
-            } catch (Exception e) {
-                System.out.println("Error executing sorting tasks: " + e.getMessage());
-            }
-
-            sortingTasks.clear(); // Clear tasks for the next iteration
+            System.out.println("---------------------------------");
         }
     }
 
-    // private void distributeTasks(String dataPath, int workerCount) {
-    //     masterThreadPool = Executors.newFixedThreadPool(workerCount);
-    //     List<Callable<Void>> sortingTasks = new ArrayList<>();
+    private void distributeTasksOriginal(String dataPath, int workerCount) {
+        masterThreadPool = Executors.newFixedThreadPool(workerCount);
+        List<Callable<Void>> sortingTasks = new ArrayList<>();
 
-    //     for (Long sorterId : subjectI.getSorterProxies().keySet()) {
-    //         String task = tasks.remove();
-    //         // Runnable sortingTask = () -> {
-    //         Callable<Void> sortingTask = () -> {
-    //             int start = Integer.parseInt(task.split(";")[0]);
-    //             int end = Integer.parseInt(task.split(";")[1]);
-    //             SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
-    //             sorterProxy.receiveTask(dataPath, start, end, sorterId);
-    //             return null;
-    //         };
+        for (Long sorterId : subjectI.getSorterProxies().keySet()) {
+            String task = tasks.remove();
+            // Runnable sortingTask = () -> {
+            Callable<Void> sortingTask = () -> {
+                int start = Integer.parseInt(task.split(";")[0]);
+                int end = Integer.parseInt(task.split(";")[1]);
+                SorterPrx sorterProxy = subjectI.getSorterProxies().get(sorterId);
+                sorterProxy.receiveTask(dataPath, start, end, sorterId);
+                return null;
+            };
 
-    //         // masterThreadPool.execute(sortingTask);
-    //         sortingTasks.add(sortingTask);
-    //     }
+            // masterThreadPool.execute(sortingTask);
+            sortingTasks.add(sortingTask);
+        }
 
-    //     try {
-    //         List<Future<Void>> futures = masterThreadPool.invokeAll(sortingTasks);
+        try {
+            List<Future<Void>> futures = masterThreadPool.invokeAll(sortingTasks);
 
-    //         for (Future<Void> future : futures) {
-    //             future.get();
-    //         }
-    //         System.out.println("-> All tasks executed successfully.");
-    //     } catch (Exception e) {
-    //         System.out.println("Error executing sorting tasks: " + e.getMessage());
-    //     }
-    // }
-
-    private void launchWorkers() {
-        System.out.println("\nLaunching workers...");
-        // notifyObservers();
-        subjectI.setRunning(true);
-        subjectI._notifyAll();
-        System.out.println("-> Workers launched!");
+            for (Future<Void> future : futures) {
+                future.get();
+            }
+            System.out.println("-> All tasks executed successfully.");
+        } catch (Exception e) {
+            System.out.println("Error executing sorting tasks: " + e.getMessage());
+        }
     }
 
-    private void shutDownWorkers() {
-        System.out.println("\nShutting down workers...");
-        // notifyObservers();
-        subjectI.setRunning(false);
+    // private void launchWorkers() {
+    // System.out.println("\nLaunching workers...");
+    // // notifyObservers();
+    // subjectI.setRunning(true);
+    // subjectI._notifyAll();
+    // System.out.println("-> Workers launched!");
+    // }
+
+    // private void shutDownWorkers() {
+    // System.out.println("\nShutting down workers...");
+    // // notifyObservers();
+    // subjectI.setRunning(false);
+    // subjectI._notifyAll();
+    // System.out.println("-> Workers shut down!");
+    // }
+
+    private void updateWorkers(boolean newStatus) {
+        if (newStatus) {
+            System.out.println("\nLaunching workers...");
+        }
+        if (!newStatus) {
+            System.out.println("\nShutting down workers...");
+        }
+
+        subjectI.setRunning(newStatus);
         subjectI._notifyAll();
-        System.out.println("-> Workers shut down!");
+
+        if (newStatus) {
+            System.out.println("-> Workers launched!");
+        }
+        if (!newStatus) {
+            System.out.println("-> Workers shut down!");
+        }
     }
 
     //
